@@ -6,6 +6,10 @@
 .DS_Store
 Thumbs.db
 
+# Local scratch (dev-server logs, Claude Code runtime state)
+*-run.log
+.claude/scheduled_tasks.lock
+
 # IDE
 .idea/
 .vscode/
