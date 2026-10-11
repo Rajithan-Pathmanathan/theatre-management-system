@@ -1,3 +1,6 @@
+server:
+  port: ${SERVER_PORT:8081} # 8081, not 8080 — this machine already has an unrelated httpd bound to 8080
+
 spring:
   application:
     name: theatre-management-system
