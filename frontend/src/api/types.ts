@@ -135,6 +135,117 @@ export type CheckInResponse = {
   validatedAt: string
 }
 
+export type MovieStatus = 'SHOWING' | 'UPCOMING' | 'INACTIVE'
+
+export type MovieResponse = {
+  id: string
+  title: string
+  language: string
+  genre: string
+  durationMinutes: number
+  posterUrl: string | null
+  synopsis: string | null
+  status: MovieStatus
+}
+
+export type MovieRequest = {
+  title: string
+  language: string
+  genre: string
+  durationMinutes: number
+  posterUrl: string | null
+  synopsis: string | null
+}
+
+export type ShowRequest = {
+  movieId: string
+  showDate: string
+  startTime: string
+  adultPrice: number
+  childPrice: number
+  guaranteed: boolean
+  onlineBookingEnabled: boolean
+  onlineAllocationPercent: number
+  hasInterval: boolean
+}
+
+export type SeatAllocationItemResponse = {
+  seatId: string
+  seatNumber: string
+  rowLabel: string
+  seatInRow: number
+  zone: SeatZone
+  channel: 'ONLINE' | 'PHYSICAL'
+  status: SeatStatus
+}
+
+export type SeatAllocationSummaryResponse = {
+  showId: string
+  onlineAllocationPercent: number
+  totalSeats: number
+  onlineCount: number
+  physicalCount: number
+  seats: SeatAllocationItemResponse[]
+}
+
+/** The full admin view of a booking, across both sales channels — see backend's BookingAdminResponse. */
+export type BookingAdminResponse = {
+  id: string
+  bookingReference: string
+  status: BookingStatus
+  channel: 'ONLINE' | 'COUNTER'
+  showId: string
+  movieTitle: string
+  showDate: string
+  startTime: string
+  customerName: string
+  customerPhone: string
+  customerEmail: string | null
+  adultCount: number
+  childCount: number
+  totalAmount: number
+  ticketsUsed: number
+  remainingTickets: number
+  physicalPaymentMethod: PhysicalPaymentMethod | null
+  soldByStaffUsername: string | null
+  seats: BookedSeatResponse[]
+  confirmedAt: string | null
+  createdAt: string
+}
+
+export type BookingAdminSearchParams = {
+  showId?: string
+  showDate?: string
+  status?: BookingStatus
+  channel?: 'ONLINE' | 'COUNTER'
+  reference?: string
+}
+
+export type ChannelBreakdown = {
+  ticketsSold: number
+  collections: number
+}
+
+export type ShowReportResponse = {
+  showId: string
+  movieTitle: string
+  showDate: string
+  startTime: string
+  ticketsSold: number
+  collections: number
+  online: ChannelBreakdown
+  physical: ChannelBreakdown
+}
+
+export type DailyReportResponse = {
+  date: string
+  totalTicketsSold: number
+  totalCollections: number
+  online: ChannelBreakdown
+  physical: ChannelBreakdown
+  shows: ShowReportResponse[]
+}
+
 export type PaymentInitiationResponse = {
   checkoutUrl: string
   merchantId: string
