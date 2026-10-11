@@ -62,6 +62,8 @@ class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         // UC-07 browsing, UC-08 booking, UC-09 payment — guest checkout, no account (customers never get one)
                         .requestMatchers(HttpMethod.GET, "/api/movies/**", "/api/shows/**").permitAll()
+                        // UC-18, BR-08 — canteen ordering never requires a booking or an account
+                        .requestMatchers(HttpMethod.GET, "/api/snacks/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings").permitAll()
                         // every booking GET is guest-readable (by id, by reference, or its QR) — none of it is staff-only
                         .requestMatchers(HttpMethod.GET, "/api/bookings/**").permitAll()
