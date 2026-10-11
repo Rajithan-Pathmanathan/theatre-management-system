@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -59,6 +60,31 @@ class BookingControllerIntegrationTest extends AbstractIntegrationTest {
             assertThat(allocation.getStatus()).isEqualTo(AllocationStatus.LOCKED);
             assertThat(allocation.getLockedUntil()).isAfter(Instant.now());
         }
+    }
+
+    @Test
+    void lookupByReference_findsTheSameBookingAsLookupById() throws Exception {
+        String token = loginAsNewAdmin();
+        UUID showId = createShow(token, new BigDecimal("450.00"), new BigDecimal("300.00"));
+        UUID seatId = onlineSeatIds(showId, 1).get(0);
+
+        String body = """
+                {"showId":"%s","adultCount":1,"childCount":0,"seatAllocationIds":["%s"],
+                 "customerName":"Reference Lookup Test","customerPhone":"+94771234567","customerEmail":null}
+                """.formatted(showId, seatId);
+
+        String createResponse = mockMvc.perform(post("/api/bookings").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String bookingId = objectMapper.readTree(createResponse).get("id").asString();
+        String bookingReference = objectMapper.readTree(createResponse).get("bookingReference").asString();
+
+        mockMvc.perform(get("/api/bookings/by-reference/" + bookingReference))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(bookingId)));
+
+        mockMvc.perform(get("/api/bookings/by-reference/NOT-A-REAL-REFERENCE"))
+                .andExpect(status().isNotFound());
     }
 
     @Test

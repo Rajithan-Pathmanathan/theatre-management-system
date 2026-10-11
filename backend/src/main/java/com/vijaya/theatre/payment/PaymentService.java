@@ -88,10 +88,15 @@ class PaymentService {
         String[] name = splitCustomerName(booking.getCustomerName());
         String email = booking.getCustomerEmail() != null ? booking.getCustomerEmail() : GUEST_EMAIL_FALLBACK;
 
+        // The booking id rides on return/cancel as a query param (PayHere doesn't echo it back
+        // itself) so the frontend's post-redirect page knows which booking to poll.
+        String bookingReturnUrl = returnUrl + "?bookingId=" + booking.getId();
+        String bookingCancelUrl = cancelUrl + "?bookingId=" + booking.getId();
+
         return new PaymentInitiationResponse(checkoutBaseUrl, merchantId, booking.getBookingReference(),
                 "Vijaya Theatre booking " + booking.getBookingReference(), amount, CURRENCY, hash,
                 name[0], name[1], email, booking.getCustomerPhone(),
-                "N/A", "Batticaloa", "Sri Lanka", returnUrl, cancelUrl, notifyUrl);
+                "N/A", "Batticaloa", "Sri Lanka", bookingReturnUrl, bookingCancelUrl, notifyUrl);
     }
 
     void handleNotification(PayHereNotifyRequest notification) {

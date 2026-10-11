@@ -52,10 +52,20 @@ class BookingService {
     /** UC-09 polling — the frontend's payment-result page checks this after returning from PayHere's checkout. */
     BookingResponse getBooking(UUID bookingId) {
         Booking booking = requireBooking(bookingId);
-        List<ShowSeatAllocation> allocations = bookingSeatRepository.findByBookingId(bookingId).stream()
+        return toResponse(booking, allocationsFor(booking));
+    }
+
+    /** UC-12 — customer self-service status lookup by the reference they were given at booking time. */
+    BookingResponse getBookingByReference(String reference) {
+        Booking booking = bookingRepository.findByBookingReference(reference)
+                .orElseThrow(() -> new ResourceNotFoundException("No booking found for reference: " + reference));
+        return toResponse(booking, allocationsFor(booking));
+    }
+
+    private List<ShowSeatAllocation> allocationsFor(Booking booking) {
+        return bookingSeatRepository.findByBookingId(booking.getId()).stream()
                 .map(BookingSeat::getShowSeatAllocation)
                 .toList();
-        return toResponse(booking, allocations);
     }
 
     /** UC-13 — admin booking list/search; every filter is optional. */

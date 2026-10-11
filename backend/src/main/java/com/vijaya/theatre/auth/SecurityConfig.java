@@ -63,7 +63,8 @@ class SecurityConfig {
                         // UC-07 browsing, UC-08 booking, UC-09 payment — guest checkout, no account (customers never get one)
                         .requestMatchers(HttpMethod.GET, "/api/movies/**", "/api/shows/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/bookings/*", "/api/bookings/*/qr-code").permitAll()
+                        // every booking GET is guest-readable (by id, by reference, or its QR) — none of it is staff-only
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/*/payment").permitAll()
                         // PayHere's own server calls this directly — no staff token, verified by signature instead
                         .requestMatchers(HttpMethod.POST, "/api/payments/payhere/notify").permitAll()

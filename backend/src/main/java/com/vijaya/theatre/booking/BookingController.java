@@ -35,4 +35,10 @@ class BookingController {
     BookingResponse get(@PathVariable UUID bookingId) {
         return bookingService.getBooking(bookingId);
     }
+
+    /** UC-12 — customer self-service status lookup by the reference they were given at booking time. */
+    @GetMapping("/by-reference/{reference}")
+    BookingResponse getByReference(@PathVariable String reference) {
+        return bookingService.getBookingByReference(reference);
+    }
 }
