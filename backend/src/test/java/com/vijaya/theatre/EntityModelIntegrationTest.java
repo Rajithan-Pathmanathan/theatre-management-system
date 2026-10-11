@@ -20,7 +20,6 @@ import com.vijaya.theatre.show.AllocationChannel;
 import com.vijaya.theatre.show.AllocationStatus;
 import com.vijaya.theatre.show.Seat;
 import com.vijaya.theatre.show.SeatRepository;
-import com.vijaya.theatre.show.SeatZone;
 import com.vijaya.theatre.show.Show;
 import com.vijaya.theatre.show.ShowRepository;
 import com.vijaya.theatre.show.ShowSeatAllocation;
@@ -83,12 +82,9 @@ class EntityModelIntegrationTest {
         movie.setStatus(MovieStatus.SHOWING);
         movie = movieRepository.save(movie);
 
-        Seat seat = new Seat();
-        seat.setSeatNumber("C12");
-        seat.setRowLabel("C");
-        seat.setSeatInRow(12);
-        seat.setZone(SeatZone.MIDDLE);
-        seat = seatRepository.save(seat);
+        // Seats are now seed data (V2__seed_seat_layout.sql, see com.vijaya.theatre.show), not
+        // freely creatable — reuse one instead of making a competing "C12".
+        Seat seat = seatRepository.findAll().getFirst();
 
         Show show = new Show();
         show.setMovie(movie);

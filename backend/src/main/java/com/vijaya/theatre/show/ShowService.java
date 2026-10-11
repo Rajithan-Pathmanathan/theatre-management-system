@@ -16,11 +16,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * UC-05. Seat allocation (ShowSeatAllocation rows) is deliberately not
- * initialized here — that's the next slice's job (UC-06), which needs the
- * Seat master-data work this slice doesn't touch.
- */
+/** UC-05. */
 @Service
 @Transactional
 class ShowService {
@@ -28,11 +24,14 @@ class ShowService {
     private final ShowRepository showRepository;
     private final MovieRepository movieRepository;
     private final ShowMapper showMapper;
+    private final SeatAllocationService seatAllocationService;
 
-    ShowService(ShowRepository showRepository, MovieRepository movieRepository, ShowMapper showMapper) {
+    ShowService(ShowRepository showRepository, MovieRepository movieRepository, ShowMapper showMapper,
+                SeatAllocationService seatAllocationService) {
         this.showRepository = showRepository;
         this.movieRepository = movieRepository;
         this.showMapper = showMapper;
+        this.seatAllocationService = seatAllocationService;
     }
 
     @Transactional(readOnly = true)
@@ -54,7 +53,9 @@ class ShowService {
         show.setMovie(movie);
         applyRequest(show, request);
         show.setStatus(ShowStatus.SCHEDULED);
-        return showMapper.toResponse(showRepository.save(show));
+        show = showRepository.save(show);
+        seatAllocationService.initializeForShow(show);
+        return showMapper.toResponse(show);
     }
 
     ShowResponse update(UUID id, ShowRequest request) {
