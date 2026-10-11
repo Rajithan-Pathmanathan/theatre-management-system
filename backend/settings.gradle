@@ -1,0 +1,7 @@
+plugins {
+    // lets Gradle auto-download the JDK 21 toolchain if it's not already installed,
+    // so the build is reproducible on any machine (incl. CI) without manual JDK setup
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'theatre-management-system'
