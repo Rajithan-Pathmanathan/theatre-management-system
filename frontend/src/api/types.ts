@@ -55,6 +55,86 @@ export type BookingResponse = {
   expiresAt: string | null
 }
 
+export type StaffRole = 'ADMIN' | 'COUNTER_STAFF' | 'CANTEEN_STAFF'
+export type ShowStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED'
+export type PhysicalPaymentMethod = 'CASH' | 'CARD' | 'OTHER'
+
+export type StaffProfileResponse = {
+  id: string
+  username: string
+  fullName: string
+  email: string | null
+  phoneNumber: string | null
+  role: StaffRole
+  active: boolean
+}
+
+export type LoginRequest = {
+  username: string
+  password: string
+}
+
+export type LoginResponse = {
+  token: string
+  expiresInSeconds: number
+  staff: StaffProfileResponse
+}
+
+/** The full admin/counter show shape — richer than the guest-facing PublicShowResponse. */
+export type ShowResponse = {
+  id: string
+  movieId: string
+  movieTitle: string
+  showDate: string
+  startTime: string
+  status: ShowStatus
+  adultPrice: number
+  childPrice: number
+  guaranteed: boolean
+  onlineBookingEnabled: boolean
+  onlineAllocationPercent: number
+  hasInterval: boolean
+}
+
+export type CounterSaleRequest = {
+  showId: string
+  adultCount: number
+  childCount: number
+  seatAllocationIds: string[]
+  physicalPaymentMethod: PhysicalPaymentMethod
+  customerName: string | null
+  customerPhone: string | null
+}
+
+export type BookingLookupResponse = {
+  id: string
+  bookingReference: string
+  status: BookingStatus
+  movieTitle: string
+  showDate: string
+  startTime: string
+  customerName: string
+  adultCount: number
+  childCount: number
+  ticketsUsed: number
+  remainingTickets: number
+  seats: BookedSeatResponse[]
+}
+
+export type CheckInRequest = {
+  ticketsToAdmit: number
+}
+
+export type CheckInResponse = {
+  bookingId: string
+  bookingReference: string
+  ticketsAdmittedThisEntry: number
+  ticketsUsed: number
+  remainingTickets: number
+  fullyCheckedIn: boolean
+  validatedAt: string
+}
+
 export type PaymentInitiationResponse = {
   checkoutUrl: string
   merchantId: string

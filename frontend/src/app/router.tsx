@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from './RootLayout'
+import { ProtectedRoute } from '../auth/ProtectedRoute'
 import { LoginPage } from '../pages/auth/LoginPage'
 import { MoviesPage } from '../pages/admin/MoviesPage'
 import { ShowsPage } from '../pages/admin/ShowsPage'
@@ -22,7 +23,9 @@ import { ValidationPage } from '../pages/counter/ValidationPage'
 
 /**
  * Route map mirrors the use-case grouping in DEVELOPMENT_PLAN.md §3:
- * customer / counter / canteen / admin, plus staff auth.
+ * customer / counter / canteen / admin, plus staff auth. Counter/canteen/admin
+ * subtrees are wrapped in ProtectedRoute, mirroring the backend's SecurityConfig
+ * role gates (COUNTER_STAFF/ADMIN for counter, ADMIN for admin).
  */
 export const router = createBrowserRouter([
   {
@@ -39,19 +42,34 @@ export const router = createBrowserRouter([
 
       { path: '/login', element: <LoginPage /> }, // UC-02
 
-      { path: '/counter/sales', element: <CounterSalesPage /> }, // UC-10
-      { path: '/counter/validate', element: <ValidationPage /> }, // UC-11
+      {
+        element: <ProtectedRoute allowedRoles={['COUNTER_STAFF', 'ADMIN']} />,
+        children: [
+          { path: '/counter/sales', element: <CounterSalesPage /> }, // UC-10
+          { path: '/counter/validate', element: <ValidationPage /> }, // UC-11
+        ],
+      },
 
-      { path: '/canteen/fulfillment', element: <CanteenFulfillmentPage /> }, // UC-19 (Phase 3)
+      {
+        element: <ProtectedRoute allowedRoles={['CANTEEN_STAFF', 'ADMIN']} />,
+        children: [
+          { path: '/canteen/fulfillment', element: <CanteenFulfillmentPage /> }, // UC-19 (Phase 3)
+        ],
+      },
 
-      { path: '/admin/movies', element: <MoviesPage /> }, // UC-04
-      { path: '/admin/shows', element: <ShowsPage /> }, // UC-05
-      { path: '/admin/seat-allocation', element: <SeatAllocationPage /> }, // UC-06
-      { path: '/admin/bookings', element: <BookingsPage /> }, // UC-13
-      { path: '/admin/reports', element: <ReportsPage /> }, // UC-14
-      { path: '/admin/analytics', element: <AnalyticsPage /> }, // UC-15 (Phase 2)
-      { path: '/admin/employees', element: <EmployeesPage /> }, // UC-16 (Phase 2)
-      { path: '/admin/snack-menu', element: <SnackMenuPage /> }, // UC-17 (Phase 3)
+      {
+        element: <ProtectedRoute allowedRoles={['ADMIN']} />,
+        children: [
+          { path: '/admin/movies', element: <MoviesPage /> }, // UC-04
+          { path: '/admin/shows', element: <ShowsPage /> }, // UC-05
+          { path: '/admin/seat-allocation', element: <SeatAllocationPage /> }, // UC-06
+          { path: '/admin/bookings', element: <BookingsPage /> }, // UC-13
+          { path: '/admin/reports', element: <ReportsPage /> }, // UC-14
+          { path: '/admin/analytics', element: <AnalyticsPage /> }, // UC-15 (Phase 2)
+          { path: '/admin/employees', element: <EmployeesPage /> }, // UC-16 (Phase 2)
+          { path: '/admin/snack-menu', element: <SnackMenuPage /> }, // UC-17 (Phase 3)
+        ],
+      },
     ],
   },
 ])
