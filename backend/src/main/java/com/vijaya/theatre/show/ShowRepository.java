@@ -15,4 +15,10 @@ public interface ShowRepository extends JpaRepository<Show, UUID> {
 
     /** UC-04 alternative flow A4 — blocks deactivating a movie that still has shows scheduled against it. */
     boolean existsByMovieIdAndStatusAndShowDateGreaterThanEqual(UUID movieId, ShowStatus status, LocalDate fromDate);
+
+    /** UC-15 — all shows a movie has ever had, for its cross-show performance analytics. */
+    List<Show> findByMovieId(UUID movieId);
+
+    /** UC-15 — the occupancy trend over a date range. */
+    List<Show> findByShowDateBetween(LocalDate from, LocalDate to);
 }
