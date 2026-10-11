@@ -56,6 +56,15 @@ class BookingService {
         this.seatLockMinutes = seatLockMinutes;
     }
 
+    /** UC-09 polling — the frontend's payment-result page checks this after returning from PayHere's checkout. */
+    BookingResponse getBooking(UUID bookingId) {
+        Booking booking = requireBooking(bookingId);
+        List<ShowSeatAllocation> allocations = bookingSeatRepository.findByBookingId(bookingId).stream()
+                .map(BookingSeat::getShowSeatAllocation)
+                .toList();
+        return toResponse(booking, allocations);
+    }
+
     BookingResponse createBooking(BookingRequest request) {
         Show show = requireShow(request.showId());
         validateShowIsBookable(show);
@@ -186,5 +195,10 @@ class BookingService {
     private Show requireShow(UUID showId) {
         return showRepository.findById(showId)
                 .orElseThrow(() -> new ResourceNotFoundException("Show not found: " + showId));
+    }
+
+    private Booking requireBooking(UUID bookingId) {
+        return bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + bookingId));
     }
 }

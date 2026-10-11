@@ -31,6 +31,16 @@ app:
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
   seat-lock:
     duration-minutes: 10 # BR-03 / FR-19
+  payhere:
+    # Sandbox defaults only — every real environment must override these with a real
+    # PayHere merchant account's own id/secret (https://www.payhere.lk), same as the
+    # jwt secret and admin-seed password above.
+    merchant-id: ${PAYHERE_MERCHANT_ID:sandbox-merchant-id}
+    merchant-secret: ${PAYHERE_MERCHANT_SECRET:sandbox-merchant-secret}
+    checkout-base-url: ${PAYHERE_CHECKOUT_URL:https://sandbox.payhere.lk/pay/checkout}
+    return-url: ${PAYHERE_RETURN_URL:http://localhost:5173/payment/success}
+    cancel-url: ${PAYHERE_CANCEL_URL:http://localhost:5173/payment/cancel}
+    notify-url: ${PAYHERE_NOTIFY_URL:http://localhost:8081/api/payments/payhere/notify}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   admin-seed:
