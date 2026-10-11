@@ -1,6 +1,7 @@
 package com.vijaya.theatre.booking;
 
 import com.vijaya.theatre.booking.dto.BookedSeatResponse;
+import com.vijaya.theatre.booking.dto.BookingAdminResponse;
 import com.vijaya.theatre.booking.dto.BookingRequest;
 import com.vijaya.theatre.booking.dto.BookingResponse;
 import com.vijaya.theatre.common.exception.BusinessRuleViolationException;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -54,6 +56,20 @@ class BookingService {
                 .map(BookingSeat::getShowSeatAllocation)
                 .toList();
         return toResponse(booking, allocations);
+    }
+
+    /** UC-13 — admin booking list/search; every filter is optional. */
+    @Transactional(readOnly = true)
+    List<BookingAdminResponse> listForAdmin(UUID showId, LocalDate showDate, BookingStatus status, BookingChannel channel, String reference) {
+        return bookingRepository.search(showId, showDate, status, channel, reference).stream()
+                .map(this::toAdminResponse)
+                .toList();
+    }
+
+    /** UC-13 — a single booking's admin detail view. */
+    @Transactional(readOnly = true)
+    BookingAdminResponse getBookingForAdmin(UUID bookingId) {
+        return toAdminResponse(requireBooking(bookingId));
     }
 
     BookingResponse createBooking(BookingRequest request) {
@@ -146,6 +162,22 @@ class BookingService {
         return new BookingResponse(booking.getId(), booking.getBookingReference(), booking.getStatus(),
                 show.getId(), show.getMovie().getTitle(), show.getShowDate(), show.getStartTime(),
                 booking.getAdultCount(), booking.getChildCount(), booking.getTotalAmount(), seats, booking.getExpiresAt());
+    }
+
+    private BookingAdminResponse toAdminResponse(Booking booking) {
+        List<BookedSeatResponse> seats = bookingSeatRepository.findByBookingId(booking.getId()).stream()
+                .map(bookingSeat -> new BookedSeatResponse(
+                        bookingSeat.getShowSeatAllocation().getSeat().getSeatNumber(),
+                        bookingSeat.getShowSeatAllocation().getSeat().getZone().name()))
+                .toList();
+        Show show = booking.getShow();
+        return new BookingAdminResponse(booking.getId(), booking.getBookingReference(), booking.getStatus(), booking.getChannel(),
+                show.getId(), show.getMovie().getTitle(), show.getShowDate(), show.getStartTime(),
+                booking.getCustomerName(), booking.getCustomerPhone(), booking.getCustomerEmail(),
+                booking.getAdultCount(), booking.getChildCount(), booking.getTotalAmount(),
+                booking.getTicketsUsed(), booking.remainingTickets(), booking.getPhysicalPaymentMethod(),
+                booking.getSoldByStaff() != null ? booking.getSoldByStaff().getUsername() : null,
+                seats, booking.getConfirmedAt(), booking.getCreatedAt());
     }
 
     private Show requireShow(UUID showId) {
