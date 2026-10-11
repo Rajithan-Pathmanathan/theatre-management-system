@@ -37,6 +37,46 @@ class ReportingControllerIntegrationTest extends AbstractIntegrationTest {
     private ShowSeatAllocationRepository showSeatAllocationRepository;
 
     @Test
+    void dailyReportExport_isCsvWithATotalsRow() throws Exception {
+        String adminToken = loginAsNewAdmin();
+        String showResponse = createShowRaw(adminToken);
+        UUID showId = UUID.fromString(objectMapper.readTree(showResponse).get("id").asString());
+        LocalDate showDate = LocalDate.parse(objectMapper.readTree(showResponse).get("showDate").asString());
+        sellCounterTicket(adminToken, showId, "+94772220099");
+
+        String csv = mockMvc.perform(get("/api/admin/reports/daily/export").param("date", showDate.toString())
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(result -> org.assertj.core.api.Assertions.assertThat(result.getResponse().getContentType())
+                        .isEqualTo("text/csv"))
+                .andExpect(result -> org.assertj.core.api.Assertions.assertThat(
+                                result.getResponse().getHeader("Content-Disposition"))
+                        .contains("daily-report-" + showDate + ".csv"))
+                .andReturn().getResponse().getContentAsString();
+
+        String[] lines = csv.strip().split("\n");
+        org.assertj.core.api.Assertions.assertThat(lines[0])
+                .isEqualTo("Movie,Start Time,Tickets Sold,Collections,Online Tickets,Online Collections,Physical Tickets,Physical Collections");
+        org.assertj.core.api.Assertions.assertThat(lines[lines.length - 1]).startsWith("TOTAL,,1,450.00,0,0,1,450.00");
+    }
+
+    @Test
+    void showReportExport_isCsvWithOneDataRow() throws Exception {
+        String adminToken = loginAsNewAdmin();
+        UUID showId = createShow(adminToken);
+        sellCounterTicket(adminToken, showId, "+94772220098");
+
+        String csv = mockMvc.perform(get("/api/admin/reports/shows/" + showId + "/export")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String[] lines = csv.strip().split("\n");
+        org.assertj.core.api.Assertions.assertThat(lines).hasSize(2);
+        org.assertj.core.api.Assertions.assertThat(lines[1]).contains(",1,450.00,0,0,1,450.00");
+    }
+
+    @Test
     void showReport_onlyCountsConfirmedCounterSales() throws Exception {
         String adminToken = loginAsNewAdmin();
         UUID showId = createShow(adminToken);

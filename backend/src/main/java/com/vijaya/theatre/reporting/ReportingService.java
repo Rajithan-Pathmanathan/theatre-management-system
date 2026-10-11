@@ -60,6 +60,16 @@ class ReportingService {
         return buildShowReport(show, bookings);
     }
 
+    /** FR-48 (Phase 2 export path). */
+    String exportDailyReportCsv(LocalDate date) {
+        return ReportCsvWriter.daily(getDailyReport(date));
+    }
+
+    /** FR-48 (Phase 2 export path). */
+    String exportShowReportCsv(UUID showId) {
+        return ReportCsvWriter.show(getShowReport(showId));
+    }
+
     private ShowReportResponse buildShowReport(Show show, List<Booking> bookings) {
         ChannelBreakdown online = aggregate(bookings, BookingChannel.ONLINE);
         ChannelBreakdown physical = aggregate(bookings, BookingChannel.COUNTER);
