@@ -1,7 +1,24 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 
-/** Minimal chrome so both the customer and staff flows are actually navigable end to end. */
+const LINK_CLASS = 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100'
+
+const COUNTER_LINKS = [
+  { to: '/counter/sales', label: 'Sell Tickets' },
+  { to: '/counter/validate', label: 'Validate' },
+]
+
+const ADMIN_LINKS = [
+  { to: '/admin/movies', label: 'Movies' },
+  { to: '/admin/shows', label: 'Shows' },
+  { to: '/admin/seat-allocation', label: 'Seat Allocation' },
+  { to: '/admin/bookings', label: 'Bookings' },
+  { to: '/admin/reports', label: 'Reports' },
+  { to: '/admin/analytics', label: 'Analytics' },
+  { to: '/admin/employees', label: 'Employees' },
+]
+
+/** Minimal chrome so the customer, counter, and admin flows are all actually navigable end to end. */
 export function RootLayout() {
   const { staff, logout } = useAuth()
   const navigate = useNavigate()
@@ -14,41 +31,27 @@ export function RootLayout() {
   return (
     <div className="min-h-screen bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
       <header className="border-b border-neutral-200 dark:border-neutral-800">
-        <nav className="mx-auto flex max-w-4xl items-center gap-6 px-6 py-3 text-sm">
+        <nav className="mx-auto flex max-w-4xl flex-wrap items-center gap-x-6 gap-y-2 px-6 py-3 text-sm">
           <Link to="/" className="font-semibold">
             Vijaya Theatre
           </Link>
-          <Link to="/bookings/track" className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
+          <Link to="/bookings/track" className={LINK_CLASS}>
             Track Booking
           </Link>
 
-          {staff?.role === 'COUNTER_STAFF' && (
-            <>
-              <Link to="/counter/sales" className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
-                Sell Tickets
+          {(staff?.role === 'COUNTER_STAFF' || staff?.role === 'ADMIN') &&
+            COUNTER_LINKS.map((link) => (
+              <Link key={link.to} to={link.to} className={LINK_CLASS}>
+                {link.label}
               </Link>
-              <Link to="/counter/validate" className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
-                Validate
-              </Link>
-            </>
-          )}
+            ))}
 
-          {staff?.role === 'ADMIN' && (
-            <>
-              <Link to="/admin/bookings" className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
-                Bookings
+          {staff?.role === 'ADMIN' &&
+            ADMIN_LINKS.map((link) => (
+              <Link key={link.to} to={link.to} className={LINK_CLASS}>
+                {link.label}
               </Link>
-              <Link to="/admin/reports" className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
-                Reports
-              </Link>
-              <Link to="/counter/sales" className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
-                Sell Tickets
-              </Link>
-              <Link to="/counter/validate" className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
-                Validate
-              </Link>
-            </>
-          )}
+            ))}
 
           <span className="flex-1" />
 
@@ -57,12 +60,12 @@ export function RootLayout() {
               <span className="text-neutral-500">
                 {staff.fullName} · {staff.role}
               </span>
-              <button onClick={handleLogout} className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
+              <button onClick={handleLogout} className={LINK_CLASS}>
                 Log out
               </button>
             </div>
           ) : (
-            <Link to="/login" className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
+            <Link to="/login" className={LINK_CLASS}>
               Staff Login
             </Link>
           )}

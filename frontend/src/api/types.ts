@@ -265,3 +265,47 @@ export type PaymentInitiationResponse = {
   cancelUrl: string
   notifyUrl: string
 }
+
+export type EmployeeResponse = {
+  id: string
+  fullName: string
+  role: string
+  phoneNumber: string | null
+  email: string | null
+  active: boolean
+  linkedStaffAccountId: string | null
+  linkedStaffAccountUsername: string | null
+}
+
+export type EmployeeRequest = {
+  fullName: string
+  role: string
+  phoneNumber: string | null
+  email: string | null
+  linkedStaffAccountId: string | null
+}
+
+export type MovieAnalyticsResponse = {
+  movieId: string
+  movieTitle: string
+  totalShows: number
+  ticketsSold: number
+  collections: number
+  averageOccupancyPercent: number
+  ticketsUsed: number
+  attendanceRatePercent: number
+  online: ChannelBreakdown
+  physical: ChannelBreakdown
+}
+
+export type ShowOccupancyResponse = {
+  showId: string
+  movieTitle: string
+  showDate: string
+  startTime: string
+  totalSeats: number
+  ticketsSold: number
+  occupancyPercent: number
+  ticketsUsed: number
+  attendanceRatePercent: number
+}

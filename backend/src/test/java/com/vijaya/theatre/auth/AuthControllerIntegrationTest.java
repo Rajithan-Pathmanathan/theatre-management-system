@@ -161,6 +161,25 @@ class AuthControllerIntegrationTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void adminCanListStaffAccounts_forTheEmployeeLinkPicker() throws Exception {
+        seedStaff("counter4", "a-strong-password", StaffRole.COUNTER_STAFF);
+        String adminToken = loginAs(seedAdminUsername, seedAdminPassword);
+
+        mockMvc.perform(get("/api/admin/staff").header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.username == 'counter4')]").exists());
+    }
+
+    @Test
+    void nonAdminCannotListStaffAccounts() throws Exception {
+        seedStaff("counter5", "a-strong-password", StaffRole.COUNTER_STAFF);
+        String token = loginAs("counter5", "a-strong-password");
+
+        mockMvc.perform(get("/api/admin/staff").header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
+    }
+
     private StaffAccount seedStaff(String username, String rawPassword, StaffRole role) {
         StaffAccount account = new StaffAccount();
         account.setUsername(username);

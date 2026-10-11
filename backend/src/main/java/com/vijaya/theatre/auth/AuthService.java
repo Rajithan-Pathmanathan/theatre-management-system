@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 /** UC-01, UC-02, UC-03. */
@@ -81,6 +82,12 @@ class AuthService {
         String token = jwtService.issueToken(account);
         log.info("Staff '{}' logged in", account.getUsername());
         return new LoginResponse(token, jwtService.expirationSeconds(), staffAccountMapper.toProfileResponse(account));
+    }
+
+    /** UC-16 — lets the employee-management screen offer a "link to this staff account" picker. */
+    @Transactional(readOnly = true)
+    List<StaffProfileResponse> list() {
+        return staffAccountRepository.findAll().stream().map(staffAccountMapper::toProfileResponse).toList();
     }
 
     /** UC-03 (view). */

@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { getDailyReport } from '../../api/admin-reports'
+import { downloadDailyReportCsv, downloadShowReportCsv, getDailyReport } from '../../api/admin-reports'
 import { formatCurrency, formatTime } from '../../lib/format'
 
 function todayIso(): string {
@@ -11,10 +11,24 @@ function todayIso(): string {
 export function ReportsPage() {
   const [date, setDate] = useState(todayIso())
   const reportQuery = useQuery({ queryKey: ['daily-report', date], queryFn: () => getDailyReport(date) })
+  const dailyExportMutation = useMutation({ mutationFn: () => downloadDailyReportCsv(date) })
+  const showExportMutation = useMutation({
+    mutationFn: ({ showId, movieTitle }: { showId: string; movieTitle: string }) => downloadShowReportCsv(showId, movieTitle),
+  })
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Daily Report</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Daily Report</h1>
+        <button
+          type="button"
+          onClick={() => dailyExportMutation.mutate()}
+          disabled={!reportQuery.data || dailyExportMutation.isPending}
+          className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium transition hover:border-emerald-500 disabled:opacity-50 dark:border-neutral-700"
+        >
+          {dailyExportMutation.isPending ? 'Exporting…' : 'Export CSV'}
+        </button>
+      </div>
 
       <label className="mt-4 block text-sm font-medium">
         Date
@@ -56,7 +70,17 @@ export function ReportsPage() {
                   <p className="font-medium">
                     {show.movieTitle} · {formatTime(show.startTime)}
                   </p>
-                  <p className="font-semibold">{formatCurrency(show.collections)}</p>
+                  <div className="flex items-center gap-3">
+                    <p className="font-semibold">{formatCurrency(show.collections)}</p>
+                    <button
+                      type="button"
+                      onClick={() => showExportMutation.mutate({ showId: show.showId, movieTitle: show.movieTitle })}
+                      disabled={showExportMutation.isPending}
+                      className="text-xs text-emerald-600 hover:underline disabled:opacity-50"
+                    >
+                      Export
+                    </button>
+                  </div>
                 </div>
                 <p className="mt-1 text-sm text-neutral-500">
                   {show.ticketsSold} tickets — online {show.online.ticketsSold} ({formatCurrency(show.online.collections)}), physical{' '}
