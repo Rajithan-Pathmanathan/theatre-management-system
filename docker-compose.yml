@@ -8,7 +8,10 @@ services:
       POSTGRES_USER: theatre
       POSTGRES_PASSWORD: theatre
     ports:
-      - "5432:5432"
+      # host 5433, not 5432 — this machine already has a native Postgres
+      # service bound to 5432; using a different host port avoids the
+      # conflict entirely instead of touching that pre-existing service.
+      - "5433:5432"
     volumes:
       - theatre-postgres-data:/var/lib/postgresql/data
     healthcheck:

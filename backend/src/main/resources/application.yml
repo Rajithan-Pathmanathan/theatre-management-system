@@ -3,7 +3,7 @@ spring:
     name: theatre-management-system
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/theatre}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/theatre} # 5433, not 5432 — see docker-compose.yml
     username: ${DB_USERNAME:theatre}
     password: ${DB_PASSWORD:theatre}
 
