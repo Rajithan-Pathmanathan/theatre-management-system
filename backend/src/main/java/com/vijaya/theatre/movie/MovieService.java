@@ -38,6 +38,12 @@ class MovieService {
         return movieRepository.findAll().stream().map(movieMapper::toResponse).toList();
     }
 
+    /** UC-07 — public browsing; excludes INACTIVE. */
+    @Transactional(readOnly = true)
+    List<MovieResponse> listPublic() {
+        return movieRepository.findByStatusNot(MovieStatus.INACTIVE).stream().map(movieMapper::toResponse).toList();
+    }
+
     @Transactional(readOnly = true)
     MovieResponse get(UUID id) {
         return movieMapper.toResponse(requireMovie(id));

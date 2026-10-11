@@ -5,6 +5,8 @@ import com.vijaya.theatre.common.exception.ResourceNotFoundException;
 import com.vijaya.theatre.movie.Movie;
 import com.vijaya.theatre.movie.MovieRepository;
 import com.vijaya.theatre.movie.MovieStatus;
+import com.vijaya.theatre.show.dto.PublicSeatResponse;
+import com.vijaya.theatre.show.dto.PublicShowResponse;
 import com.vijaya.theatre.show.dto.ShowRequest;
 import com.vijaya.theatre.show.dto.ShowResponse;
 import com.vijaya.theatre.show.dto.ShowStatusRequest;
@@ -12,11 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-/** UC-05. */
+/** UC-05 (admin) and UC-07 (public browsing). */
 @Service
 @Transactional
 class ShowService {
@@ -25,13 +29,18 @@ class ShowService {
     private final MovieRepository movieRepository;
     private final ShowMapper showMapper;
     private final SeatAllocationService seatAllocationService;
+    private final ShowSeatAllocationRepository showSeatAllocationRepository;
+    private final PublicSeatMapper publicSeatMapper;
 
     ShowService(ShowRepository showRepository, MovieRepository movieRepository, ShowMapper showMapper,
-                SeatAllocationService seatAllocationService) {
+                SeatAllocationService seatAllocationService, ShowSeatAllocationRepository showSeatAllocationRepository,
+                PublicSeatMapper publicSeatMapper) {
         this.showRepository = showRepository;
         this.movieRepository = movieRepository;
         this.showMapper = showMapper;
         this.seatAllocationService = seatAllocationService;
+        this.showSeatAllocationRepository = showSeatAllocationRepository;
+        this.publicSeatMapper = publicSeatMapper;
     }
 
     @Transactional(readOnly = true)
@@ -42,6 +51,33 @@ class ShowService {
     @Transactional(readOnly = true)
     ShowResponse get(UUID id) {
         return showMapper.toResponse(requireShow(id));
+    }
+
+    /** UC-07 — only ever lists shows a customer could actually book: SCHEDULED, guaranteed, online-enabled, still in the future. */
+    @Transactional(readOnly = true)
+    List<PublicShowResponse> listPublicByDate(LocalDate date) {
+        return showRepository.findByShowDateAndStatus(date, ShowStatus.SCHEDULED).stream()
+                .filter(this::isPubliclyBookable)
+                .map(this::toPublicResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    PublicShowResponse getPublicShow(UUID id) {
+        return toPublicResponse(requirePubliclyBookableShow(id));
+    }
+
+    /** FR-18 — only ONLINE-channel seats are ever exposed to a customer. */
+    @Transactional(readOnly = true)
+    List<PublicSeatResponse> getPublicSeats(UUID id) {
+        Show show = requirePubliclyBookableShow(id);
+        Comparator<ShowSeatAllocation> seatOrder = Comparator
+                .<ShowSeatAllocation, String>comparing(a -> a.getSeat().getRowLabel())
+                .thenComparing(a -> a.getSeat().getSeatInRow());
+        return showSeatAllocationRepository.findByShowIdAndChannel(show.getId(), AllocationChannel.ONLINE).stream()
+                .sorted(seatOrder)
+                .map(publicSeatMapper::toResponse)
+                .toList();
     }
 
     ShowResponse create(ShowRequest request) {
@@ -120,6 +156,29 @@ class ShowService {
         show.setOnlineBookingEnabled(request.onlineBookingEnabled());
         show.setOnlineAllocationPercent(request.onlineAllocationPercent());
         show.setHasInterval(request.hasInterval());
+    }
+
+    private boolean isPubliclyBookable(Show show) {
+        return show.isGuaranteed() && show.isOnlineBookingEnabled()
+                && LocalDateTime.of(show.getShowDate(), show.getStartTime()).isAfter(LocalDateTime.now());
+    }
+
+    private Show requirePubliclyBookableShow(UUID id) {
+        Show show = requireShow(id);
+        if (show.getStatus() != ShowStatus.SCHEDULED || !isPubliclyBookable(show)) {
+            // Deliberately the same exception/message as "doesn't exist" — the public API doesn't
+            // distinguish "not found" from "exists but not open for online booking" (UC-07 A2/A4).
+            throw new ResourceNotFoundException("Show not found or not open for online booking: " + id);
+        }
+        return show;
+    }
+
+    private PublicShowResponse toPublicResponse(Show show) {
+        long remaining = showSeatAllocationRepository.countByShowIdAndChannelAndStatus(
+                show.getId(), AllocationChannel.ONLINE, AllocationStatus.AVAILABLE);
+        return new PublicShowResponse(show.getId(), show.getMovie().getId(), show.getMovie().getTitle(),
+                show.getShowDate(), show.getStartTime(), show.getAdultPrice(), show.getChildPrice(),
+                show.isHasInterval(), remaining);
     }
 
     private Movie requireBookableMovie(UUID movieId) {
