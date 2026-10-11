@@ -70,6 +70,8 @@ class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").hasAuthority("ADMIN")
                         // UC-10 — counter staff sell physical tickets; admin can too (same actor model as elsewhere)
                         .requestMatchers("/api/counter/**").hasAnyAuthority("COUNTER_STAFF", "ADMIN")
+                        // UC-11 — door-side check-in; the SRS has no separate validation role, so same actors as counter sales
+                        .requestMatchers("/api/validation/**").hasAnyAuthority("COUNTER_STAFF", "ADMIN")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
