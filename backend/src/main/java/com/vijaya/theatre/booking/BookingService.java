@@ -16,15 +16,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -35,10 +30,6 @@ import java.util.UUID;
 @Service
 @Transactional
 class BookingService {
-
-    private static final DateTimeFormatter REFERENCE_DATE = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final String REFERENCE_SUFFIX_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I — avoids phone-read-back ambiguity
-    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final BookingRepository bookingRepository;
     private final BookingSeatRepository bookingSeatRepository;
@@ -68,7 +59,7 @@ class BookingService {
     BookingResponse createBooking(BookingRequest request) {
         Show show = requireShow(request.showId());
         validateShowIsBookable(show);
-        validateTicketAndSeatCounts(request);
+        TicketSeatCountValidator.validate(request.adultCount(), request.childCount(), request.seatAllocationIds());
 
         List<ShowSeatAllocation> allocations = showSeatAllocationRepository.lockAllByIdForUpdate(request.seatAllocationIds());
         validateAllocationsAreLockable(allocations, request, show);
@@ -83,7 +74,7 @@ class BookingService {
         showSeatAllocationRepository.saveAll(allocations);
 
         Booking booking = new Booking();
-        booking.setBookingReference(generateBookingReference());
+        booking.setBookingReference(BookingReferenceGenerator.generate());
         booking.setShow(show);
         booking.setChannel(BookingChannel.ONLINE);
         booking.setStatus(BookingStatus.PENDING_PAYMENT);
@@ -92,7 +83,7 @@ class BookingService {
         booking.setCustomerEmail(request.customerEmail());
         booking.setAdultCount(request.adultCount());
         booking.setChildCount(request.childCount());
-        booking.setTotalAmount(calculateTotal(show, request));
+        booking.setTotalAmount(show.calculateTotal(request.adultCount(), request.childCount()));
         booking.setExpiresAt(lockExpiry);
         Booking savedBooking = bookingRepository.save(booking);
 
@@ -120,22 +111,6 @@ class BookingService {
         }
     }
 
-    /** BR-04 — seat count must exactly match ticket count; alternative flow — at least one ticket, and no duplicate seat ids. */
-    private void validateTicketAndSeatCounts(BookingRequest request) {
-        int ticketCount = request.adultCount() + request.childCount();
-        if (ticketCount <= 0) {
-            throw new BusinessRuleViolationException("At least one adult or child ticket is required.");
-        }
-        Set<UUID> distinctSeatIds = new HashSet<>(request.seatAllocationIds());
-        if (distinctSeatIds.size() != request.seatAllocationIds().size()) {
-            throw new BusinessRuleViolationException("The same seat was selected more than once.");
-        }
-        if (distinctSeatIds.size() != ticketCount) {
-            throw new BusinessRuleViolationException(
-                    "Selected seat count (" + distinctSeatIds.size() + ") must match the requested ticket count (" + ticketCount + ").");
-        }
-    }
-
     /**
      * FR-12, NFR-02, BR-03. Called after {@code lockAllByIdForUpdate} has
      * already taken row locks on every allocation that does exist — this
@@ -152,7 +127,7 @@ class BookingService {
 
         Instant now = Instant.now();
         List<String> unavailable = allocations.stream()
-                .filter(allocation -> !isLockable(allocation, now) || allocation.getChannel() != AllocationChannel.ONLINE
+                .filter(allocation -> !allocation.isAvailableForSale(now) || allocation.getChannel() != AllocationChannel.ONLINE
                         || !allocation.getShow().getId().equals(show.getId()))
                 .map(allocation -> allocation.getSeat().getSeatNumber())
                 .toList();
@@ -161,25 +136,6 @@ class BookingService {
             throw new BusinessRuleViolationException(
                     "The following seats are no longer available: " + String.join(", ", unavailable));
         }
-    }
-
-    private boolean isLockable(ShowSeatAllocation allocation, Instant now) {
-        return allocation.getStatus() == AllocationStatus.AVAILABLE
-                || (allocation.getStatus() == AllocationStatus.LOCKED && allocation.getLockedUntil().isBefore(now));
-    }
-
-    private BigDecimal calculateTotal(Show show, BookingRequest request) {
-        return show.getAdultPrice().multiply(BigDecimal.valueOf(request.adultCount()))
-                .add(show.getChildPrice().multiply(BigDecimal.valueOf(request.childCount())));
-    }
-
-    /** Not cryptographically unique by construction, but collision is astronomically unlikely at this scale; the DB's unique constraint is the real backstop. */
-    private String generateBookingReference() {
-        StringBuilder suffix = new StringBuilder(6);
-        for (int i = 0; i < 6; i++) {
-            suffix.append(REFERENCE_SUFFIX_CHARS.charAt(RANDOM.nextInt(REFERENCE_SUFFIX_CHARS.length())));
-        }
-        return "VJY-" + REFERENCE_DATE.format(LocalDateTime.now()) + "-" + suffix;
     }
 
     private BookingResponse toResponse(Booking booking, List<ShowSeatAllocation> allocations) {

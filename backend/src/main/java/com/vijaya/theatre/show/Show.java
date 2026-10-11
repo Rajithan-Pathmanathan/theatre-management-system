@@ -66,4 +66,10 @@ public class Show extends AuditableEntity {
     /** BR-14 (Phase 3) — drives whether "During Interval" canteen pickup is offered for this show. */
     @Column(name = "has_interval", nullable = false)
     private boolean hasInterval = true;
+
+    /** Shared by online (UC-08) and counter (UC-10) sales — both price against this show's own rates. */
+    public BigDecimal calculateTotal(int adultCount, int childCount) {
+        return adultPrice.multiply(BigDecimal.valueOf(adultCount))
+                .add(childPrice.multiply(BigDecimal.valueOf(childCount)));
+    }
 }

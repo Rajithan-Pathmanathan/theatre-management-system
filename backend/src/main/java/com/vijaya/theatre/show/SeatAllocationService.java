@@ -1,6 +1,7 @@
 package com.vijaya.theatre.show;
 
 import com.vijaya.theatre.common.exception.ResourceNotFoundException;
+import com.vijaya.theatre.show.dto.PublicSeatResponse;
 import com.vijaya.theatre.show.dto.SeatAllocationItemResponse;
 import com.vijaya.theatre.show.dto.SeatAllocationSummaryResponse;
 import org.springframework.stereotype.Service;
@@ -32,14 +33,16 @@ class SeatAllocationService {
     private final ShowRepository showRepository;
     private final ShowSeatAllocationRepository showSeatAllocationRepository;
     private final SeatAllocationMapper seatAllocationMapper;
+    private final PublicSeatMapper publicSeatMapper;
 
     SeatAllocationService(SeatRepository seatRepository, ShowRepository showRepository,
                            ShowSeatAllocationRepository showSeatAllocationRepository,
-                           SeatAllocationMapper seatAllocationMapper) {
+                           SeatAllocationMapper seatAllocationMapper, PublicSeatMapper publicSeatMapper) {
         this.seatRepository = seatRepository;
         this.showRepository = showRepository;
         this.showSeatAllocationRepository = showSeatAllocationRepository;
         this.seatAllocationMapper = seatAllocationMapper;
+        this.publicSeatMapper = publicSeatMapper;
     }
 
     /** Called once, right after a show is persisted — creates one allocation row per hall seat. */
@@ -63,6 +66,23 @@ class SeatAllocationService {
     SeatAllocationSummaryResponse getSummary(UUID showId) {
         Show show = requireShow(showId);
         return buildSummary(show, showSeatAllocationRepository.findByShowId(showId));
+    }
+
+    /**
+     * UC-10 — lets counter staff see which physical seats are still
+     * sellable for a show. Reuses {@link PublicSeatMapper} (not
+     * {@link SeatAllocationMapper}) specifically because its {@code seatId}
+     * is the {@code ShowSeatAllocation} id, which is what a counter sale
+     * request's {@code seatAllocationIds} must contain — the admin item
+     * response's {@code seatId} is the raw {@code Seat} id instead.
+     */
+    @Transactional(readOnly = true)
+    List<PublicSeatResponse> getPhysicalSeats(UUID showId) {
+        requireShow(showId);
+        return showSeatAllocationRepository.findByShowIdAndChannel(showId, AllocationChannel.PHYSICAL).stream()
+                .sorted(Comparator.comparing(ShowSeatAllocation::getSeat, SEAT_ORDER))
+                .map(publicSeatMapper::toResponse)
+                .toList();
     }
 
     /**

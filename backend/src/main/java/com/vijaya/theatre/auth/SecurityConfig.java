@@ -68,6 +68,8 @@ class SecurityConfig {
                         // PayHere's own server calls this directly — no staff token, verified by signature instead
                         .requestMatchers(HttpMethod.POST, "/api/payments/payhere/notify").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").hasAuthority("ADMIN")
+                        // UC-10 — counter staff sell physical tickets; admin can too (same actor model as elsewhere)
+                        .requestMatchers("/api/counter/**").hasAnyAuthority("COUNTER_STAFF", "ADMIN")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);

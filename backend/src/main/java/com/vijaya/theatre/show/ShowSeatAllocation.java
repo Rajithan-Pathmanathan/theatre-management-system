@@ -60,4 +60,10 @@ public class ShowSeatAllocation extends BaseEntity {
 
     @Version
     private long version;
+
+    /** Shared by online (UC-08) and counter (UC-10) sales — a LOCKED seat whose hold has expired is reclaimable. */
+    public boolean isAvailableForSale(Instant now) {
+        return status == AllocationStatus.AVAILABLE
+                || (status == AllocationStatus.LOCKED && lockedUntil != null && lockedUntil.isBefore(now));
+    }
 }
