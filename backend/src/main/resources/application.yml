@@ -33,6 +33,12 @@ app:
     duration-minutes: 10 # BR-03 / FR-19
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  admin-seed:
+    # Bootstraps the one and only admin account when staff_accounts is empty (AdminAccountSeeder).
+    # These defaults are for local dev only — override both in every other environment and change
+    # the password immediately after first login.
+    username: ${ADMIN_SEED_USERNAME:admin}
+    password: ${ADMIN_SEED_PASSWORD:change-me-immediately}
 
 springdoc:
   swagger-ui:

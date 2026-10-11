@@ -5,7 +5,9 @@ import com.vijaya.theatre.common.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +44,27 @@ class GlobalExceptionHandler {
                 .map(this::toFieldError)
                 .toList();
         return build(HttpStatus.BAD_REQUEST, "Validation failed.", request, fieldErrors);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    ResponseEntity<ApiError> handleMalformedRequest(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "The request body is malformed or contains an invalid value.", request, List.of());
+    }
+
+    /**
+     * Thrown by {@code AuthenticationManager.authenticate(...)} when login
+     * fails — Spring Security's {@code DaoAuthenticationProvider} already
+     * collapses "unknown username" and "wrong password" into the same
+     * {@code BadCredentialsException} by default (UC-02 alternative flow A1:
+     * never disclose which field was wrong), and a deactivated account
+     * raises {@code DisabledException} the same way. Both land here as one
+     * generic message. Only reached from within a controller/service — the
+     * filter-chain-level 401 case is handled separately by
+     * {@code RestAuthenticationEntryPoint}.
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    ResponseEntity<ApiError> handleAuthenticationFailure(AuthenticationException ex, HttpServletRequest request) {
+        return build(HttpStatus.UNAUTHORIZED, "Invalid username or password.", request, List.of());
     }
 
     @ExceptionHandler(Exception.class)
