@@ -18,6 +18,7 @@ import { PaymentCancelPage } from '../pages/customer/PaymentCancelPage'
 import { PaymentSuccessPage } from '../pages/customer/PaymentSuccessPage'
 import { SeatBookingPage } from '../pages/customer/SeatBookingPage'
 import { SnackOrderPage } from '../pages/customer/SnackOrderPage'
+import { SnackOrderTrackingPage } from '../pages/customer/SnackOrderTrackingPage'
 import { CounterSalesPage } from '../pages/counter/CounterSalesPage'
 import { ValidationPage } from '../pages/counter/ValidationPage'
 
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
       { path: '/payment/cancel', element: <PaymentCancelPage /> }, // UC-09 — PayHere cancel_url
       { path: '/bookings/track', element: <BookingStatusPage /> }, // UC-12
       { path: '/snacks', element: <SnackOrderPage /> }, // UC-18 (Phase 3)
+      { path: '/snacks/orders/:orderId', element: <SnackOrderTrackingPage /> }, // UC-18, FR-64
 
       { path: '/login', element: <LoginPage /> }, // UC-02
 
