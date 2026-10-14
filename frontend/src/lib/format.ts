@@ -17,3 +17,9 @@ export function formatDate(date: string): string {
     month: 'short',
   })
 }
+
+export const PICKUP_LABELS = {
+  BEFORE_MOVIE: 'Before the movie',
+  DURING_INTERVAL: 'During the interval',
+  BOTH: 'Before the movie and at the interval',
+} as const

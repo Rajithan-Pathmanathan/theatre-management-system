@@ -39,6 +39,9 @@ export function RootLayout() {
           <Link to="/bookings/track" className={LINK_CLASS}>
             Track Booking
           </Link>
+          <Link to="/snacks" className={LINK_CLASS}>
+            Order Snacks
+          </Link>
 
           {(staff?.role === 'COUNTER_STAFF' || staff?.role === 'ADMIN') &&
             COUNTER_LINKS.map((link) => (
