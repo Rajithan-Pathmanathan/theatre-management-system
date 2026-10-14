@@ -15,15 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * UC-18, BR-08, BR-13–BR-15. Standalone and booking-linked orders share this
- * one creation path — see {@link SnackOrder}'s Javadoc for why "booking-
- * linked" here is contextual metadata only, not a combined payment.
+ * UC-18, UC-19, BR-08, BR-13–BR-16. Standalone and booking-linked orders
+ * share one creation path — see {@link SnackOrder}'s Javadoc for why
+ * "booking-linked" here is contextual metadata only, not a combined
+ * payment. Fulfilment ({@link #listQueue}, {@link #updateStatus},
+ * {@link #updateItemAvailability}) is the canteen staff side of UC-19.
  */
 @Service
 @Transactional
@@ -114,6 +117,66 @@ class SnackOrderService {
         return QrCodeGenerator.generatePng(order.getOrderToken().toString(), 300);
     }
 
+    /** UC-19 — a BOTH order appears in either timing's queue, since it's eligible for pickup in both windows. */
+    @Transactional(readOnly = true)
+    List<SnackOrderResponse> listQueue(LocalDate orderDate, PickupTiming pickupTiming, SnackOrderStatus status) {
+        return snackOrderRepository.findByOrderDate(orderDate).stream()
+                .filter(order -> pickupTiming == null || order.getPickupTiming() == pickupTiming || order.getPickupTiming() == PickupTiming.BOTH)
+                .filter(order -> status == null || order.getStatus() == status)
+                .sorted(Comparator.comparing(SnackOrder::getOrderNumber))
+                .map(order -> toResponse(order, snackOrderItemRepository.findBySnackOrderId(order.getId())))
+                .toList();
+    }
+
+    /** UC-19 — staff verify pickup by scanning the order's QR. */
+    @Transactional(readOnly = true)
+    SnackOrderResponse getByOrderToken(UUID orderToken) {
+        SnackOrder order = snackOrderRepository.findByOrderToken(orderToken)
+                .orElseThrow(() -> new ResourceNotFoundException("No snack order found for this code."));
+        return toResponse(order, snackOrderItemRepository.findBySnackOrderId(order.getId()));
+    }
+
+    /** UC-19, BR-16 — CLOSED only ever happens via this explicit staff action; there is no automatic expiry. */
+    SnackOrderResponse updateStatus(UUID id, SnackOrderStatus newStatus) {
+        SnackOrder order = requireOrder(id);
+        validateStatusTransition(order.getStatus(), newStatus);
+        order.setStatus(newStatus);
+        return toResponse(snackOrderRepository.save(order), snackOrderItemRepository.findBySnackOrderId(id));
+    }
+
+    /** UC-19, FR-64 — marking an item unavailable (or reverting that) recalculates the order total. */
+    SnackOrderResponse updateItemAvailability(UUID orderId, UUID itemId, boolean unavailable) {
+        requireOrder(orderId); // 404s cleanly if the order itself doesn't exist, before touching its items
+        List<SnackOrderItem> items = snackOrderItemRepository.findBySnackOrderId(orderId);
+        SnackOrderItem item = items.stream().filter(i -> i.getId().equals(itemId)).findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Order item not found: " + itemId));
+        item.setUnavailable(unavailable);
+        snackOrderItemRepository.save(item);
+
+        SnackOrder order = requireOrder(orderId);
+        BigDecimal adjustedTotal = items.stream()
+                .filter(i -> !i.isUnavailable())
+                .map(SnackOrderItem::lineTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        order.setTotalAmount(adjustedTotal);
+        return toResponse(snackOrderRepository.save(order), items);
+    }
+
+    private void validateStatusTransition(SnackOrderStatus current, SnackOrderStatus next) {
+        if (current == SnackOrderStatus.COLLECTED || current == SnackOrderStatus.CLOSED) {
+            throw new BusinessRuleViolationException("This order is already " + current + " and cannot be changed further.");
+        }
+        boolean valid = switch (next) {
+            case READY -> current == SnackOrderStatus.PLACED;
+            case COLLECTED -> current == SnackOrderStatus.PLACED || current == SnackOrderStatus.READY;
+            case CLOSED -> true; // BR-16 — staff can manually close any still-active (PLACED/READY) order
+            case PLACED -> false;
+        };
+        if (!valid) {
+            throw new BusinessRuleViolationException("Cannot move an order from " + current + " to " + next + ".");
+        }
+    }
+
     /** BR-14 — DURING_INTERVAL/BOTH require the show to actually have an interval. */
     private void validatePickupTiming(PickupTiming timing, Show show) {
         if (timing != PickupTiming.BEFORE_MOVIE && !show.isHasInterval()) {
@@ -143,7 +206,7 @@ class SnackOrderService {
 
     private SnackOrderResponse toResponse(SnackOrder order, List<SnackOrderItem> items) {
         List<SnackOrderItemResponse> itemResponses = items.stream()
-                .map(item -> new SnackOrderItemResponse(item.getItemName(), item.getUnitPrice(), item.getQuantity(), item.isUnavailable()))
+                .map(item -> new SnackOrderItemResponse(item.getId(), item.getItemName(), item.getUnitPrice(), item.getQuantity(), item.isUnavailable()))
                 .toList();
         Show show = order.getShow();
         Booking linkedBooking = order.getLinkedBooking();
