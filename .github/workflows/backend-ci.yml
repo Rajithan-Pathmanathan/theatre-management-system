@@ -4,11 +4,12 @@ on:
   push:
     branches: [main, dev]
     paths: ['backend/**', '.github/workflows/backend-ci.yml']
+  # No paths filter: both workflows are required checks, so they must report on every PR.
   pull_request:
-    paths: ['backend/**', '.github/workflows/backend-ci.yml']
 
 jobs:
   build-and-test:
+    name: Backend CI
     runs-on: ubuntu-latest
     defaults:
       run:
