@@ -11,5 +11,6 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    env: { TZ: 'Asia/Colombo' }, // the client's zone; makes UTC-vs-local date bugs show up in CI too
   },
 })

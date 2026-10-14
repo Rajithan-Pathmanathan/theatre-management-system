@@ -2,16 +2,12 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { getMovieAnalytics, getOccupancyTrend } from '../../api/admin-analytics'
 import { listMovies } from '../../api/admin-movies'
-import { formatCurrency, formatDate, formatTime } from '../../lib/format'
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
-}
+import { formatCurrency, formatDate, formatTime, todayIso, toIsoDate } from '../../lib/format'
 
 function plusDaysIso(days: number): string {
   const date = new Date()
   date.setDate(date.getDate() + days)
-  return date.toISOString().slice(0, 10)
+  return toIsoDate(date)
 }
 
 /** UC-15, FR-40–FR-45. Historical decision-support — occupancy, attendance, and channel-performance trends, not a forecast. */

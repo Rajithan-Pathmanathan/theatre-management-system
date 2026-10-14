@@ -4,11 +4,7 @@ import { Link } from 'react-router-dom'
 import { listMovies } from '../../api/admin-movies'
 import { createShow, listShowsByDate, updateShow, updateShowStatus } from '../../api/admin-shows'
 import type { ShowRequest, ShowResponse, ShowStatus } from '../../api/types'
-import { formatCurrency, formatTime } from '../../lib/format'
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
-}
+import { formatCurrency, formatTime, todayIso } from '../../lib/format'
 
 function emptyForm(date: string): ShowRequest {
   return {

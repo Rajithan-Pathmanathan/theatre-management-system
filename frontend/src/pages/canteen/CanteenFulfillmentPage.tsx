@@ -7,11 +7,7 @@ import {
   updateSnackOrderStatus,
 } from '../../api/canteen'
 import type { PickupTiming, SnackOrderResponse, SnackOrderStatus } from '../../api/types'
-import { formatCurrency, formatTime, PICKUP_LABELS } from '../../lib/format'
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
-}
+import { formatCurrency, formatTime, PICKUP_LABELS, todayIso } from '../../lib/format'
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const ACTIVE: SnackOrderStatus[] = ['PLACED', 'READY']
