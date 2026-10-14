@@ -133,8 +133,11 @@ class SnackOrderService {
     }
 
     @Transactional(readOnly = true)
-    SnackOrderResponse getByOrderNumber(LocalDate orderDate, int orderNumber) {
+    SnackOrderResponse getByOrderNumber(LocalDate orderDate, int orderNumber, String customerPhone) {
+        // Order numbers are sequential (BR-15), so the phone acts as the secret; a wrong phone gets the same 404
+        // as a wrong number, so the endpoint can't be used to enumerate orders or test phone numbers.
         SnackOrder order = snackOrderRepository.findByOrderDateAndOrderNumber(orderDate, orderNumber)
+                .filter(o -> customerPhone != null && o.getCustomerPhone().equals(customerPhone.strip()))
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No snack order #" + orderNumber + " on " + orderDate));
         return toResponse(order, snackOrderItemRepository.findBySnackOrderId(order.getId()));

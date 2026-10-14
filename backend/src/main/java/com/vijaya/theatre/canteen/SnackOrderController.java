@@ -48,11 +48,15 @@ class SnackOrderController {
         return snackOrderService.getById(id);
     }
 
-    /** UC-12-style self-service lookup by the human-facing order number, for a customer who didn't keep the link. */
+    /**
+     * UC-12-style self-service lookup by the human-facing order number, for a customer who didn't keep the link.
+     * Needs the phone the order was placed with; a missing phone is a 404 like any other mismatch.
+     */
     @GetMapping("/lookup")
     SnackOrderResponse lookup(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                              @RequestParam int orderNumber) {
-        return snackOrderService.getByOrderNumber(date, orderNumber);
+                              @RequestParam int orderNumber,
+                              @RequestParam(required = false) String phone) {
+        return snackOrderService.getByOrderNumber(date, orderNumber, phone);
     }
 
     @GetMapping(value = "/{id}/qr-code", produces = MediaType.IMAGE_PNG_VALUE)
