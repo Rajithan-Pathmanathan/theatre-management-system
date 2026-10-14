@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getBookingByReference } from '../../api/bookings'
 import { listShowsByDate } from '../../api/shows'
-import { createSnackOrder, listAvailableSnacks, snackOrderQrCodeUrl } from '../../api/snacks'
+import { createSnackOrder, listAvailableSnacks } from '../../api/snacks'
 import type { PickupTiming } from '../../api/types'
-import { formatCurrency, formatDate, formatTime, PICKUP_LABELS, todayIso } from '../../lib/format'
+import { formatCurrency, formatTime, PICKUP_LABELS, todayIso } from '../../lib/format'
 
 const INPUT_CLASS = 'mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900'
 
@@ -15,6 +15,7 @@ const INPUT_CLASS = 'mt-1 block w-full rounded-md border border-neutral-300 px-3
  */
 export function SnackOrderPage() {
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [date, setDate] = useState(todayIso())
   const [showId, setShowId] = useState(searchParams.get('showId') ?? '')
   const [quantities, setQuantities] = useState<Record<string, number>>({})
@@ -46,29 +47,12 @@ export function SnackOrderPage() {
         items: lines.map((snack) => ({ snackItemId: snack.id, quantity: quantities[snack.id] })),
       })
     },
+    onSuccess: (order) => navigate(`/snacks/orders/${order.id}`),
   })
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     orderMutation.mutate()
-  }
-
-  if (orderMutation.data) {
-    const order = orderMutation.data
-    return (
-      <main className="mx-auto max-w-xl px-6 py-10 text-center">
-        <h1 className="text-2xl font-semibold">Order placed</h1>
-        <p className="mt-4 text-neutral-500">Your order number</p>
-        <p className="text-5xl font-bold">#{order.orderNumber}</p>
-        <img src={snackOrderQrCodeUrl(order.id)} alt="Snack order QR code" className="mx-auto mt-6 h-48 w-48" />
-        <p className="mt-4">
-          {order.movieTitle} · {formatDate(order.showDate)} · {formatTime(order.startTime)}
-        </p>
-        <p className="mt-1 text-neutral-600 dark:text-neutral-400">Pick up {PICKUP_LABELS[order.pickupTiming].toLowerCase()}</p>
-        <p className="mt-4 text-xl font-semibold">{formatCurrency(order.totalAmount)}</p>
-        <p className="text-sm text-neutral-500">Pay at the canteen when you collect. Show this QR code or your order number.</p>
-      </main>
-    )
   }
 
   return (

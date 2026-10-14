@@ -11,6 +11,11 @@ export async function createSnackOrder(request: SnackOrderRequest): Promise<Snac
   return data
 }
 
+export async function getSnackOrder(id: string): Promise<SnackOrderResponse> {
+  const { data } = await apiClient.get<SnackOrderResponse>(`/api/snack-orders/${id}`)
+  return data
+}
+
 export function snackOrderQrCodeUrl(orderId: string): string {
   return `${apiClient.defaults.baseURL}/api/snack-orders/${orderId}/qr-code`
 }
