@@ -23,6 +23,7 @@ public record SnackOrderResponse(
         SnackOrderStatus status,
         BigDecimal totalAmount,
         List<SnackOrderItemResponse> items,
-        String linkedBookingReference
+        String linkedBookingReference,
+        BigDecimal prepaidAmount
 ) {
 }

@@ -1,5 +1,6 @@
 package com.vijaya.theatre.canteen;
 
+import com.vijaya.theatre.canteen.dto.BookingSnackRequest;
 import com.vijaya.theatre.canteen.dto.SnackOrderRequest;
 import com.vijaya.theatre.canteen.dto.SnackOrderResponse;
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,6 +34,13 @@ class SnackOrderController {
     @PostMapping
     ResponseEntity<SnackOrderResponse> create(@Valid @RequestBody SnackOrderRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(snackOrderService.createOrder(request));
+    }
+
+    /** BR-13 — the snacks to pay for with this booking's tickets; 204 when the list was empty. */
+    @PutMapping("/booking/{bookingId}")
+    ResponseEntity<SnackOrderResponse> setBookingSnacks(@PathVariable UUID bookingId, @Valid @RequestBody BookingSnackRequest request) {
+        SnackOrderResponse order = snackOrderService.setBookingSnacks(bookingId, request);
+        return order == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(order);
     }
 
     @GetMapping("/{id}")

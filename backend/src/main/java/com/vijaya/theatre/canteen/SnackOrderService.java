@@ -2,6 +2,8 @@ package com.vijaya.theatre.canteen;
 
 import com.vijaya.theatre.booking.Booking;
 import com.vijaya.theatre.booking.BookingRepository;
+import com.vijaya.theatre.booking.BookingStatus;
+import com.vijaya.theatre.canteen.dto.BookingSnackRequest;
 import com.vijaya.theatre.canteen.dto.CanteenItemSales;
 import com.vijaya.theatre.canteen.dto.CanteenSalesReportResponse;
 import com.vijaya.theatre.canteen.dto.SnackOrderItemRequest;
@@ -75,7 +77,9 @@ class SnackOrderService {
         order.setCustomerName(request.customerName());
         order.setCustomerPhone(request.customerPhone());
         order.setPickupTiming(request.pickupTiming());
-        order.setStatus(SnackOrderStatus.PLACED);
+        // BR-13 — a booking still awaiting payment carries its snacks into that payment
+        boolean awaitingBookingPayment = linkedBooking != null && linkedBooking.getStatus() == BookingStatus.PENDING_PAYMENT;
+        order.setStatus(awaitingBookingPayment ? SnackOrderStatus.AWAITING_PAYMENT : SnackOrderStatus.PLACED);
         order.setOrderToken(UUID.randomUUID());
         // ponytail: no pessimistic locking on order_number, unlike seat allocation — a rare concurrent
         // collision here just means a 500 the customer retries, not a double-booked seat.
@@ -97,6 +101,29 @@ class SnackOrderService {
         snackOrderItemRepository.saveAll(items);
 
         return toResponse(saved, items);
+    }
+
+    /**
+     * BR-13. Sets the snacks to be paid with a booking's tickets, replacing any chosen earlier, so a
+     * retried or reloaded payment page never charges twice. Returns null when the list is empty.
+     */
+    SnackOrderResponse setBookingSnacks(UUID bookingId, BookingSnackRequest request) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + bookingId));
+        if (booking.getStatus() != BookingStatus.PENDING_PAYMENT) {
+            throw new BusinessRuleViolationException("Snacks can only be added to a booking that is awaiting payment.");
+        }
+        // ponytail: replacing assumes the customer pays from the page they last saved; two tabs paying different
+        // snack choices at once could charge for a replaced order. Lock the selection once payment starts if that ever matters.
+        for (SnackOrder existing : snackOrderRepository.findByLinkedBookingIdAndStatus(bookingId, SnackOrderStatus.AWAITING_PAYMENT)) {
+            snackOrderItemRepository.deleteAll(snackOrderItemRepository.findBySnackOrderId(existing.getId()));
+            snackOrderRepository.delete(existing);
+        }
+        if (request.items().isEmpty()) {
+            return null;
+        }
+        return createOrder(new SnackOrderRequest(bookingId, null, booking.getCustomerName(), booking.getCustomerPhone(),
+                request.pickupTiming(), request.items()));
     }
 
     @Transactional(readOnly = true)
@@ -189,6 +216,9 @@ class SnackOrderService {
     }
 
     private void validateStatusTransition(SnackOrderStatus current, SnackOrderStatus next) {
+        if (current == SnackOrderStatus.AWAITING_PAYMENT) {
+            throw new BusinessRuleViolationException("This order is waiting for its booking to be paid.");
+        }
         if (current == SnackOrderStatus.COLLECTED || current == SnackOrderStatus.CLOSED) {
             throw new BusinessRuleViolationException("This order is already " + current + " and cannot be changed further.");
         }
@@ -196,7 +226,7 @@ class SnackOrderService {
             case READY -> current == SnackOrderStatus.PLACED;
             case COLLECTED -> current == SnackOrderStatus.PLACED || current == SnackOrderStatus.READY;
             case CLOSED -> true; // BR-16 — staff can manually close any still-active (PLACED/READY) order
-            case PLACED -> false;
+            case PLACED, AWAITING_PAYMENT -> false;
         };
         if (!valid) {
             throw new BusinessRuleViolationException("Cannot move an order from " + current + " to " + next + ".");
@@ -239,7 +269,7 @@ class SnackOrderService {
         return new SnackOrderResponse(order.getId(), order.getOrderDate(), order.getOrderNumber(), show.getId(),
                 show.getMovie().getTitle(), show.getShowDate(), show.getStartTime(), order.getCustomerName(),
                 order.getCustomerPhone(), order.getPickupTiming(), order.getStatus(), order.getTotalAmount(),
-                itemResponses, linkedBooking != null ? linkedBooking.getBookingReference() : null);
+                itemResponses, linkedBooking != null ? linkedBooking.getBookingReference() : null, order.getPrepaidAmount());
     }
 
     private SnackOrder requireOrder(UUID id) {
