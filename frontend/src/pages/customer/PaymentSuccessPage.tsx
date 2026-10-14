@@ -33,8 +33,8 @@ export function PaymentSuccessPage() {
 
   if (booking.status !== 'CONFIRMED') {
     return (
-      <main className="mx-auto max-w-xl px-6 py-10 text-center">
-        <p className="text-neutral-600 dark:text-neutral-400">
+      <main className="mx-4 my-8 max-w-xl rounded-2xl border border-neutral-200 bg-white px-4 py-8 text-center shadow-sm sm:mx-auto sm:px-8">
+        <p className="text-neutral-600">
           Waiting for payment confirmation from PayHere — this usually takes a few seconds.
         </p>
       </main>
@@ -42,22 +42,22 @@ export function PaymentSuccessPage() {
   }
 
   return (
-    <main className="mx-auto max-w-xl px-6 py-10 text-center">
-      <h1 className="text-2xl font-semibold text-emerald-600">Booking Confirmed</h1>
+    <main className="mx-4 my-8 max-w-xl rounded-2xl border border-neutral-200 bg-white px-4 py-8 text-center shadow-sm sm:mx-auto sm:px-8">
+      <h1 className="text-2xl font-bold text-emerald-600">Booking Confirmed</h1>
       <p className="mt-2 font-mono text-lg">{booking.bookingReference}</p>
 
       <img
         src={qrCodeUrl(booking.id)}
         alt={`QR code for booking ${booking.bookingReference}`}
-        className="mx-auto mt-6 h-56 w-56 rounded-lg border border-neutral-200 dark:border-neutral-800"
+        className="mx-auto mt-6 h-56 w-56 rounded-lg border border-neutral-200"
       />
 
-      <p className="mt-6 text-neutral-600 dark:text-neutral-400">
+      <p className="mt-6 text-neutral-600">
         {booking.movieTitle} · Seats: {booking.seats.map((seat) => seat.seatNumber).join(', ')}
       </p>
       <p className="mt-1 text-sm text-neutral-500">Show this QR code at the theatre entrance.</p>
 
-      <Link to="/" className="mt-8 inline-block text-sm text-emerald-600 hover:underline">
+      <Link to="/" className="mt-8 inline-block text-sm text-brand hover:underline">
         Back to showtimes
       </Link>
     </main>

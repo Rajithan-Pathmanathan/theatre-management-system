@@ -5,11 +5,11 @@ import type { BookingAdminResponse, BookingAdminSearchParams, BookingStatus } fr
 import { formatCurrency, formatDate, formatTime } from '../../lib/format'
 
 const STATUS_BADGE: Record<BookingStatus, string> = {
-  PENDING_PAYMENT: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
-  CONFIRMED: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
-  EXPIRED: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
-  CANCELLED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  REFUNDED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  PENDING_PAYMENT: 'bg-amber-100 text-amber-800',
+  CONFIRMED: 'bg-emerald-100 text-emerald-800',
+  EXPIRED: 'bg-neutral-100 text-neutral-600',
+  CANCELLED: 'bg-red-100 text-red-800',
+  REFUNDED: 'bg-red-100 text-red-800',
 }
 
 /** UC-13. A unified view of both sales channels — richer than the guest-facing booking response. */
@@ -42,7 +42,7 @@ export function BookingsPage() {
             type="date"
             value={showDate}
             onChange={(event) => setShowDate(event.target.value)}
-            className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2"
           />
         </label>
         <label className="text-sm font-medium">
@@ -50,7 +50,7 @@ export function BookingsPage() {
           <select
             value={status}
             onChange={(event) => setStatus(event.target.value)}
-            className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2"
           >
             <option value="">Any</option>
             <option value="PENDING_PAYMENT">Pending Payment</option>
@@ -65,7 +65,7 @@ export function BookingsPage() {
           <select
             value={channel}
             onChange={(event) => setChannel(event.target.value)}
-            className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2"
           >
             <option value="">Any</option>
             <option value="ONLINE">Online</option>
@@ -78,14 +78,14 @@ export function BookingsPage() {
             value={reference}
             onChange={(event) => setReference(event.target.value)}
             placeholder="VJY-20261201-ABC123"
-            className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 font-mono dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2 font-mono"
           />
         </label>
         <button
           type="button"
           onClick={runSearch}
           disabled={searchMutation.isPending}
-          className="rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+          className="rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
         >
           {searchMutation.isPending ? 'Searching…' : 'Search'}
         </button>
@@ -103,7 +103,7 @@ export function BookingsPage() {
               type="button"
               onClick={() => setSelected(booking)}
               className={`flex items-center justify-between rounded-lg border px-4 py-3 text-left ${
-                selected?.id === booking.id ? 'border-emerald-500' : 'border-neutral-200 dark:border-neutral-800'
+                selected?.id === booking.id ? 'border-emerald-500' : 'border-neutral-200'
               }`}
             >
               <div>
@@ -118,12 +118,12 @@ export function BookingsPage() {
         </div>
 
         {selected && (
-          <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+          <div className="rounded-xl border border-neutral-200 bg-white p-4">
             <p className="font-mono text-lg">{selected.bookingReference}</p>
             <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[selected.status]}`}>
               {selected.status}
             </span>
-            <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className="mt-3 text-sm text-neutral-600">
               {selected.movieTitle} · {formatDate(selected.showDate)} · {formatTime(selected.startTime)}
             </p>
             <p className="mt-2 text-sm">

@@ -58,13 +58,13 @@ export function BookingConfirmationPage() {
   const expired = secondsLeft !== null && secondsLeft <= 0
 
   return (
-    <main className="mx-auto max-w-xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Confirm & Pay</h1>
-      <p className="text-neutral-600 dark:text-neutral-400">
+    <main className="mx-auto max-w-xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Confirm & Pay</h1>
+      <p className="text-neutral-600">
         {booking.movieTitle} · {formatDate(booking.showDate)} · {formatTime(booking.startTime)}
       </p>
 
-      <div className="mt-6 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+      <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-4">
         <p className="text-sm text-neutral-500">Booking reference</p>
         <p className="font-mono text-lg">{booking.bookingReference}</p>
 
@@ -96,7 +96,7 @@ export function BookingConfirmationPage() {
       </div>
 
       {booking.status !== 'PENDING_PAYMENT' ? (
-        <p className="mt-6 text-neutral-600 dark:text-neutral-400">
+        <p className="mt-6 text-neutral-600">
           This booking is already {booking.status.toLowerCase().replace('_', ' ')}.
         </p>
       ) : expired ? (
@@ -109,7 +109,7 @@ export function BookingConfirmationPage() {
             </p>
           )}
 
-          <details className="mt-6 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+          <details className="mt-6 rounded-xl border border-neutral-200 bg-white p-4">
             <summary className="cursor-pointer font-medium">Add snacks (paid now with your tickets)</summary>
             <div className="mt-4 flex flex-col gap-4">
               <SnackPicker
@@ -131,7 +131,7 @@ export function BookingConfirmationPage() {
           <button
             onClick={() => paymentMutation.mutate()}
             disabled={paymentMutation.isPending}
-            className="mt-4 w-full rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+            className="mt-4 w-full rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
           >
             {paymentMutation.isPending ? 'Redirecting to PayHere…' : 'Pay Now'}
           </button>

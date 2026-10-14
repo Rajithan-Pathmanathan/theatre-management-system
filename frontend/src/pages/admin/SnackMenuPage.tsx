@@ -50,7 +50,7 @@ export function SnackMenuPage() {
           {itemsQuery.isPending && <p className="text-neutral-500">Loading…</p>}
           {itemsQuery.data?.length === 0 && <p className="text-neutral-500">No snack items yet.</p>}
           {itemsQuery.data?.map((item) => (
-            <div key={item.id} className="flex items-center justify-between rounded-lg border border-neutral-200 px-4 py-3 dark:border-neutral-800">
+            <div key={item.id} className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-4 py-3">
               <button type="button" onClick={() => startEdit(item)} className="text-left">
                 <p className="font-medium">{item.name}</p>
                 <p className="text-sm text-neutral-500">{formatCurrency(item.price)}</p>
@@ -59,8 +59,8 @@ export function SnackMenuPage() {
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     item.available
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
-                      : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-neutral-100 text-neutral-600'
                   }`}
                 >
                   {item.available ? 'Available' : 'Unavailable'}
@@ -68,7 +68,7 @@ export function SnackMenuPage() {
                 <button
                   type="button"
                   onClick={() => availabilityMutation.mutate({ id: item.id, available: !item.available })}
-                  className="rounded-md border border-neutral-300 px-2 py-1 text-xs dark:border-neutral-700"
+                  className="rounded-lg border border-neutral-300 px-2 py-1 text-xs"
                 >
                   {item.available ? 'Mark unavailable' : 'Mark available'}
                 </button>
@@ -85,7 +85,7 @@ export function SnackMenuPage() {
               required
               value={form.name}
               onChange={(event) => setForm({ ...form, name: event.target.value })}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
           <label className="text-sm font-medium">
@@ -97,7 +97,7 @@ export function SnackMenuPage() {
               step="0.01"
               value={form.price}
               onChange={(event) => setForm({ ...form, price: event.target.value })}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
 
@@ -112,7 +112,7 @@ export function SnackMenuPage() {
             <button
               type="submit"
               disabled={saveMutation.isPending}
-              className="rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+              className="rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
             >
               {editingId ? 'Save' : 'Create'}
             </button>
@@ -123,7 +123,7 @@ export function SnackMenuPage() {
                   setEditingId(null)
                   setForm(EMPTY_FORM)
                 }}
-                className="rounded-md border border-neutral-300 px-4 py-2 font-medium dark:border-neutral-700"
+                className="rounded-lg border border-neutral-300 px-4 py-2 font-medium"
               >
                 Cancel
               </button>

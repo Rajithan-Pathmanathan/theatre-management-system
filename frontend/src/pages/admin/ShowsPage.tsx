@@ -21,9 +21,9 @@ function emptyForm(date: string): ShowRequest {
 }
 
 const STATUS_BADGE: Record<ShowStatus, string> = {
-  SCHEDULED: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
-  CANCELLED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  COMPLETED: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
+  SCHEDULED: 'bg-emerald-100 text-emerald-800',
+  CANCELLED: 'bg-red-100 text-red-800',
+  COMPLETED: 'bg-neutral-100 text-neutral-600',
 }
 
 /** UC-05, BR-01. Online booking requires `guaranteed` — the backend rejects onlineBookingEnabled without it. */
@@ -83,7 +83,7 @@ export function ShowsPage() {
             setDate(event.target.value)
             if (!editingId) setForm(emptyForm(event.target.value))
           }}
-          className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2"
         />
       </label>
 
@@ -92,7 +92,7 @@ export function ShowsPage() {
           {showsQuery.isPending && <p className="text-neutral-500">Loading…</p>}
           {showsQuery.data?.length === 0 && <p className="text-neutral-500">No shows on this date.</p>}
           {showsQuery.data?.map((show) => (
-            <div key={show.id} className="rounded-lg border border-neutral-200 px-4 py-3 dark:border-neutral-800">
+            <div key={show.id} className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
               <div className="flex items-center justify-between">
                 <button type="button" onClick={() => startEdit(show)} className="text-left">
                   <p className="font-medium">{show.movieTitle}</p>
@@ -105,7 +105,7 @@ export function ShowsPage() {
                   <select
                     value={show.status}
                     onChange={(event) => statusMutation.mutate({ id: show.id, status: event.target.value as ShowStatus })}
-                    className="rounded-md border border-neutral-300 bg-transparent px-1 py-1 text-xs dark:border-neutral-700"
+                    className="rounded-lg border border-neutral-300 bg-transparent px-1 py-1 text-xs"
                   >
                     <option value="SCHEDULED">Scheduled</option>
                     <option value="CANCELLED">Cancelled</option>
@@ -119,7 +119,7 @@ export function ShowsPage() {
                 <Link
                   to="/admin/seat-allocation"
                   state={{ showId: show.id, showDate: show.showDate }}
-                  className="text-emerald-600 hover:underline"
+                  className="text-brand hover:underline"
                 >
                   Seat allocation →
                 </Link>
@@ -135,7 +135,7 @@ export function ShowsPage() {
             <select
               value={form.movieId}
               onChange={(event) => setForm({ ...form, movieId: event.target.value })}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             >
               <option value="">Select a movie…</option>
               {moviesQuery.data?.map((movie) => (
@@ -151,7 +151,7 @@ export function ShowsPage() {
               type="date"
               value={form.showDate}
               onChange={(event) => setForm({ ...form, showDate: event.target.value })}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
           <label className="text-sm font-medium">
@@ -160,7 +160,7 @@ export function ShowsPage() {
               type="time"
               value={form.startTime}
               onChange={(event) => setForm({ ...form, startTime: event.target.value })}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
           <div className="flex gap-3">
@@ -171,7 +171,7 @@ export function ShowsPage() {
                 min={0}
                 value={form.adultPrice}
                 onChange={(event) => setForm({ ...form, adultPrice: Number(event.target.value) })}
-                className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
               />
             </label>
             <label className="text-sm font-medium">
@@ -181,7 +181,7 @@ export function ShowsPage() {
                 min={0}
                 value={form.childPrice}
                 onChange={(event) => setForm({ ...form, childPrice: Number(event.target.value) })}
-                className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
               />
             </label>
           </div>
@@ -210,7 +210,7 @@ export function ShowsPage() {
               max={100}
               value={form.onlineAllocationPercent}
               onChange={(event) => setForm({ ...form, onlineAllocationPercent: Number(event.target.value) })}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
           <label className="flex items-center gap-2 text-sm font-medium">
@@ -233,7 +233,7 @@ export function ShowsPage() {
             <button
               type="submit"
               disabled={saveMutation.isPending || !form.movieId}
-              className="rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+              className="rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
             >
               {editingId ? 'Save' : 'Create'}
             </button>
@@ -244,7 +244,7 @@ export function ShowsPage() {
                   setEditingId(null)
                   setForm(emptyForm(date))
                 }}
-                className="rounded-md border border-neutral-300 px-4 py-2 font-medium dark:border-neutral-700"
+                className="rounded-lg border border-neutral-300 px-4 py-2 font-medium"
               >
                 Cancel
               </button>

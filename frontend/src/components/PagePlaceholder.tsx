@@ -13,7 +13,7 @@ export function PagePlaceholder({ title, useCases, description }: PagePlaceholde
     <main className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-start justify-center gap-2 px-6">
       <span className="text-sm font-mono text-neutral-500">{useCases}</span>
       <h1 className="text-2xl font-semibold">{title}</h1>
-      <p className="text-neutral-600 dark:text-neutral-400">{description}</p>
+      <p className="text-neutral-600">{description}</p>
     </main>
   )
 }

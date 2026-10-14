@@ -44,7 +44,7 @@ export function LoginPage() {
   return (
     <main className="mx-auto max-w-sm px-6 py-16">
       <h1 className="text-2xl font-semibold">Staff Login</h1>
-      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className="mt-1 text-sm text-neutral-600">
         Counter, canteen, and admin staff only — customers don't need an account.
       </p>
 
@@ -55,7 +55,7 @@ export function LoginPage() {
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             autoComplete="username"
-            className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
           />
         </label>
         <label className="text-sm font-medium">
@@ -65,7 +65,7 @@ export function LoginPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="current-password"
-            className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
           />
         </label>
 
@@ -74,7 +74,7 @@ export function LoginPage() {
         <button
           type="submit"
           disabled={loginMutation.isPending}
-          className="mt-2 rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+          className="mt-2 rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
         >
           {loginMutation.isPending ? 'Signing in…' : 'Sign In'}
         </button>

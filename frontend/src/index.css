@@ -1,9 +1,36 @@
 @import "tailwindcss";
 
+/* Light-only theme: dark: variants only apply under a .dark class, which nothing sets. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand: #e8414f;
+  --color-brand-dark: #c92f3d;
+  --color-brand-soft: #fdecee;
+  --color-page: #f4f4f7;
+}
+
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+  accent-color: var(--color-brand);
 }
 
 body {
   margin: 0;
+  background: var(--color-page);
+}
+
+@layer base {
+  input,
+  select,
+  textarea {
+    background-color: white;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 1px;
+  }
 }

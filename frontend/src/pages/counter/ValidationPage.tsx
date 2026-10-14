@@ -64,12 +64,12 @@ export function ValidationPage() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={mode === 'reference' ? 'VJY-20261201-ABC123' : '+94...'}
-            className="flex-1 rounded-md border border-neutral-300 px-3 py-2 font-mono dark:border-neutral-700 dark:bg-neutral-900"
+            className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 font-mono"
           />
           <button
             type="submit"
             disabled={lookupMutation.isPending}
-            className="rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+            className="rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
           >
             {lookupMutation.isPending ? 'Searching…' : 'Search'}
           </button>
@@ -83,20 +83,20 @@ export function ValidationPage() {
         {results.map((booking) => {
           const fullyCheckedIn = booking.remainingTickets <= 0
           return (
-            <div key={booking.id} className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+            <div key={booking.id} className="rounded-xl border border-neutral-200 bg-white p-4">
               <div className="flex items-center justify-between">
                 <p className="font-mono font-semibold">{booking.bookingReference}</p>
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     booking.status === 'CONFIRMED'
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
-                      : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-neutral-100 text-neutral-600'
                   }`}
                 >
                   {booking.status}
                 </span>
               </div>
-              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+              <p className="mt-1 text-sm text-neutral-600">
                 {booking.movieTitle} · {formatDate(booking.showDate)} · {formatTime(booking.startTime)}
               </p>
               <p className="mt-1 text-sm">{booking.customerName}</p>
@@ -120,13 +120,13 @@ export function ValidationPage() {
                     onChange={(event) =>
                       setTicketsToAdmit((current) => ({ ...current, [booking.id]: Number(event.target.value) }))
                     }
-                    className="w-20 rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
+                    className="w-20 rounded-lg border border-neutral-300 px-2 py-1"
                   />
                   <button
                     type="button"
                     onClick={() => handleAdmit(booking)}
                     disabled={checkInMutation.isPending}
-                    className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+                    className="rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
                   >
                     Admit
                   </button>

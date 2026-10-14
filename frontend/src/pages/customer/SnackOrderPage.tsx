@@ -9,7 +9,7 @@ import { SnackPicker } from '../../components/SnackPicker'
 import { snackSelection } from '../../lib/snacks'
 import { formatCurrency, formatTime, todayIso } from '../../lib/format'
 
-const INPUT_CLASS = 'mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900'
+const INPUT_CLASS = 'mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2'
 
 /**
  * UC-18, BR-08, BR-13–BR-15. No booking or account needed; a booking reference is optional.
@@ -57,11 +57,11 @@ export function SnackOrderPage() {
   }
 
   return (
-    <main className="mx-auto max-w-xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Order Snacks</h1>
-      <p className="mt-1 text-neutral-600 dark:text-neutral-400">No ticket booking needed. Pay when you collect.</p>
+    <main className="mx-auto max-w-xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Order Snacks</h1>
+      <p className="mt-1 text-neutral-600">No ticket booking needed. Pay when you collect.</p>
 
-      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4 rounded-xl border border-neutral-200 bg-white p-4 sm:p-6">
         <div className="grid grid-cols-[auto_1fr] gap-3">
           <label className="text-sm font-medium">
             Date
@@ -123,12 +123,12 @@ export function SnackOrderPage() {
           </p>
         )}
 
-        <div className="flex items-center justify-between border-t border-neutral-200 pt-4 dark:border-neutral-800">
+        <div className="flex items-center justify-between border-t border-neutral-200 pt-4">
           <p className="text-lg font-semibold">{formatCurrency(total)}</p>
           <button
             type="submit"
             disabled={lines.length === 0 || !showId || orderMutation.isPending}
-            className="rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+            className="rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
           >
             {orderMutation.isPending ? 'Placing order…' : 'Place order'}
           </button>

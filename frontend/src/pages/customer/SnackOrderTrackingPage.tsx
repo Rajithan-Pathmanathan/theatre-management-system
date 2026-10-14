@@ -33,13 +33,13 @@ export function SnackOrderTrackingPage() {
   const active = order.status === 'PLACED' || order.status === 'READY'
 
   return (
-    <main className="mx-auto max-w-xl px-6 py-10 text-center">
+    <main className="mx-4 my-8 max-w-xl rounded-2xl border border-neutral-200 bg-white px-4 py-8 text-center shadow-sm sm:mx-auto sm:px-8">
       <p className="text-neutral-500">Your order number</p>
       <p className="text-5xl font-bold">#{order.orderNumber}</p>
       <p className="mt-2 font-medium">{STATUS_TEXT[order.status]}</p>
 
       {unavailable.length > 0 && active && (
-        <div role="alert" className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-left text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
+        <div role="alert" className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-left text-amber-900">
           <p className="font-medium">Sorry, the canteen has run out of:</p>
           <ul className="mt-1 list-inside list-disc">
             {unavailable.map((item) => (
@@ -58,7 +58,7 @@ export function SnackOrderTrackingPage() {
       <p className="mt-4">
         {order.movieTitle} · {formatDate(order.showDate)} · {formatTime(order.startTime)}
       </p>
-      <p className="mt-1 text-neutral-600 dark:text-neutral-400">Pick up {PICKUP_LABELS[order.pickupTiming].toLowerCase()}</p>
+      <p className="mt-1 text-neutral-600">Pick up {PICKUP_LABELS[order.pickupTiming].toLowerCase()}</p>
 
       <ul className="mx-auto mt-4 max-w-xs text-left text-sm">
         {order.items.map((item) => (
