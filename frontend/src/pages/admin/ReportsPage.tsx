@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { downloadDailyReportCsv, downloadShowReportCsv, getDailyReport } from '../../api/admin-reports'
+import { getCanteenSalesReport } from '../../api/admin-snacks'
 import { formatCurrency, formatTime } from '../../lib/format'
 
 function todayIso(): string {
@@ -11,6 +12,7 @@ function todayIso(): string {
 export function ReportsPage() {
   const [date, setDate] = useState(todayIso())
   const reportQuery = useQuery({ queryKey: ['daily-report', date], queryFn: () => getDailyReport(date) })
+  const canteenQuery = useQuery({ queryKey: ['canteen-sales-report', date], queryFn: () => getCanteenSalesReport(date) })
   const dailyExportMutation = useMutation({ mutationFn: () => downloadDailyReportCsv(date) })
   const showExportMutation = useMutation({
     mutationFn: ({ showId, movieTitle }: { showId: string; movieTitle: string }) => downloadShowReportCsv(showId, movieTitle),
@@ -86,6 +88,27 @@ export function ReportsPage() {
                   {show.ticketsSold} tickets — online {show.online.ticketsSold} ({formatCurrency(show.online.collections)}), physical{' '}
                   {show.physical.ticketsSold} ({formatCurrency(show.physical.collections)})
                 </p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* FR-57 — collected orders only; snacks are pay-at-collection. */}
+      <h2 className="mt-10 font-medium">Canteen sales</h2>
+      {canteenQuery.data && (
+        <>
+          <p className="mt-2 text-sm text-neutral-500">
+            {canteenQuery.data.ordersCollected} orders collected · {formatCurrency(canteenQuery.data.totalSales)}
+          </p>
+          {canteenQuery.data.items.length === 0 && <p className="mt-2 text-neutral-500">No collected snack orders on this date.</p>}
+          <div className="mt-3 flex flex-col gap-2">
+            {canteenQuery.data.items.map((item) => (
+              <div key={item.itemName} className="flex justify-between rounded-lg border border-neutral-200 px-4 py-2 dark:border-neutral-800">
+                <p>
+                  {item.itemName} × {item.quantitySold}
+                </p>
+                <p className="font-medium">{formatCurrency(item.sales)}</p>
               </div>
             ))}
           </div>
