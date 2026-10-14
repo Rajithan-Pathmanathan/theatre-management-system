@@ -4,11 +4,12 @@ on:
   push:
     branches: [main, dev]
     paths: ['frontend/**', '.github/workflows/frontend-ci.yml']
+  # No paths filter: both workflows are required checks, so they must report on every PR.
   pull_request:
-    paths: ['frontend/**', '.github/workflows/frontend-ci.yml']
 
 jobs:
   build-and-test:
+    name: Frontend CI
     runs-on: ubuntu-latest
     defaults:
       run:

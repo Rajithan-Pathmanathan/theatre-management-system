@@ -27,3 +27,6 @@ Backend tests use Testcontainers, so Docker must be running: `cd backend && ./gr
 3. Run the tests locally, then push and open a PR into `dev`.
 4. Merge only after CI (Backend CI / Frontend CI) is green. Delete the feature branch afterwards.
 5. When `dev` reaches a stable milestone, open a release PR `dev` → `main` and merge it after CI passes.
+
+`main` and `dev` are protected on GitHub. Nobody can push to them directly, and that includes admins. Every change goes
+through a PR, and a PR can only merge once both the **Backend CI** and **Frontend CI** checks pass.
