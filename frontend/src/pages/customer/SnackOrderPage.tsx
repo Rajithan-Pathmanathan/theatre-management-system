@@ -5,7 +5,9 @@ import { getBookingByReference } from '../../api/bookings'
 import { listShowsByDate } from '../../api/shows'
 import { createSnackOrder, listAvailableSnacks } from '../../api/snacks'
 import type { PickupTiming } from '../../api/types'
-import { formatCurrency, formatTime, PICKUP_LABELS, todayIso } from '../../lib/format'
+import { SnackPicker } from '../../components/SnackPicker'
+import { snackSelection } from '../../lib/snacks'
+import { formatCurrency, formatTime, todayIso } from '../../lib/format'
 
 const INPUT_CLASS = 'mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900'
 
@@ -31,8 +33,7 @@ export function SnackOrderPage() {
   const hasInterval = selectedShow?.hasInterval ?? false
   const effectivePickup: PickupTiming = hasInterval ? pickupTiming : 'BEFORE_MOVIE' // BR-14
 
-  const lines = (snacksQuery.data ?? []).filter((snack) => (quantities[snack.id] ?? 0) > 0)
-  const total = lines.reduce((sum, snack) => sum + snack.price * quantities[snack.id], 0)
+  const { lines, total, items } = snackSelection(snacksQuery.data, quantities)
 
   const orderMutation = useMutation({
     mutationFn: async () => {
@@ -44,7 +45,7 @@ export function SnackOrderPage() {
         customerName,
         customerPhone,
         pickupTiming: effectivePickup,
-        items: lines.map((snack) => ({ snackItemId: snack.id, quantity: quantities[snack.id] })),
+        items,
       })
     },
     onSuccess: (order) => navigate(`/snacks/orders/${order.id}`),
@@ -80,43 +81,15 @@ export function SnackOrderPage() {
         </div>
         {showsQuery.data?.length === 0 && <p className="text-sm text-neutral-500">No shows on this date.</p>}
 
-        <fieldset>
-          <legend className="text-sm font-medium">Snacks</legend>
-          {snacksQuery.data?.length === 0 && <p className="mt-2 text-sm text-neutral-500">The canteen menu is empty right now.</p>}
-          <div className="mt-2 flex flex-col gap-2">
-            {snacksQuery.data?.map((snack) => (
-              <label key={snack.id} className="flex items-center justify-between rounded-lg border border-neutral-200 px-4 py-2 dark:border-neutral-800">
-                <span>
-                  {snack.name} <span className="text-neutral-500">· {formatCurrency(snack.price)}</span>
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  max="20"
-                  value={quantities[snack.id] ?? 0}
-                  onChange={(event) => setQuantities({ ...quantities, [snack.id]: Number(event.target.value) })}
-                  aria-label={`${snack.name} quantity`}
-                  className="w-16 rounded-md border border-neutral-300 px-2 py-1 text-right dark:border-neutral-700 dark:bg-neutral-900"
-                />
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend className="text-sm font-medium">Pickup</legend>
-          <div className="mt-2 flex flex-col gap-1">
-            {(Object.keys(PICKUP_LABELS) as PickupTiming[])
-              .filter((timing) => hasInterval || timing === 'BEFORE_MOVIE')
-              .map((timing) => (
-                <label key={timing} className="flex items-center gap-2">
-                  <input type="radio" name="pickup" checked={effectivePickup === timing} onChange={() => setPickupTiming(timing)} />
-                  {PICKUP_LABELS[timing]}
-                </label>
-              ))}
-          </div>
-          {selectedShow && !hasInterval && <p className="mt-1 text-sm text-neutral-500">This show has no interval.</p>}
-        </fieldset>
+        <SnackPicker
+          snacks={snacksQuery.data}
+          quantities={quantities}
+          onQuantitiesChange={setQuantities}
+          hasInterval={hasInterval}
+          pickup={effectivePickup}
+          onPickupChange={setPickupTiming}
+          noIntervalNote={!!selectedShow && !hasInterval}
+        />
 
         <label className="text-sm font-medium">
           Name

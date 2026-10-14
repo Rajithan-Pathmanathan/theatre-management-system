@@ -20,4 +20,7 @@ public interface SnackOrderRepository extends JpaRepository<SnackOrder, UUID> {
 
     /** UC-19 — the canteen staff queue for a given day. */
     List<SnackOrder> findByOrderDate(LocalDate orderDate);
+
+    /** BR-13 — a booking's snacks that are waiting on the ticket payment. */
+    List<SnackOrder> findByLinkedBookingIdAndStatus(UUID bookingId, SnackOrderStatus status);
 }

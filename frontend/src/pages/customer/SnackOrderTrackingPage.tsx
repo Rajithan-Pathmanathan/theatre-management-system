@@ -5,6 +5,7 @@ import type { SnackOrderStatus } from '../../api/types'
 import { formatCurrency, formatDate, formatTime, PICKUP_LABELS } from '../../lib/format'
 
 const STATUS_TEXT: Record<SnackOrderStatus, string> = {
+  AWAITING_PAYMENT: 'Waiting for your booking payment.',
   PLACED: 'Order received. The canteen is preparing it.',
   READY: 'Ready for pickup.',
   COLLECTED: 'Collected. Enjoy the movie!',
@@ -45,7 +46,11 @@ export function SnackOrderTrackingPage() {
               <li key={item.id}>{item.itemName}</li>
             ))}
           </ul>
-          <p className="mt-2 text-sm">You won't be charged for these. Your new total is {formatCurrency(order.totalAmount)}.</p>
+          <p className="mt-2 text-sm">
+            {order.prepaidAmount !== null
+              ? `The canteen will refund ${formatCurrency(order.prepaidAmount - order.totalAmount)} when you collect.`
+              : `You won't be charged for these. Your new total is ${formatCurrency(order.totalAmount)}.`}
+          </p>
         </div>
       )}
 
@@ -66,7 +71,8 @@ export function SnackOrderTrackingPage() {
         ))}
       </ul>
       <p className="mt-4 text-xl font-semibold">{formatCurrency(order.totalAmount)}</p>
-      {active && (
+      {active && order.prepaidAmount !== null && <p className="text-sm text-neutral-500">Paid online with your tickets.</p>}
+      {active && order.prepaidAmount === null && (
         <p className="text-sm text-neutral-500">
           Pay at the canteen when you collect. Show this QR code or your order number. Keep this page open, or bookmark it, to see
           updates.

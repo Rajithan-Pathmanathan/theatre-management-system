@@ -27,6 +27,7 @@ function order(overrides: Partial<SnackOrderResponse>): SnackOrderResponse {
       { id: 'i2', itemName: 'Coke', unitPrice: 300, quantity: 1, unavailable: true },
     ],
     linkedBookingReference: null,
+    prepaidAmount: null,
     ...overrides,
   }
 }
@@ -55,6 +56,14 @@ describe('SnackOrderTrackingPage', () => {
     expect(alert.textContent).toContain('Coke')
     expect(alert.textContent).not.toContain('Popcorn')
     expect(alert.textContent).toMatch(/1,700\.00/)
+  })
+
+  it('offers a refund instead when the order was paid online with the tickets (BR-13)', async () => {
+    vi.mocked(getSnackOrder).mockResolvedValue(order({ prepaidAmount: 2000 }))
+    renderPage()
+
+    const alert = await screen.findByRole('alert')
+    expect(alert.textContent).toMatch(/refund.*300\.00/)
   })
 
   it('shows no notice when everything is in stock', async () => {

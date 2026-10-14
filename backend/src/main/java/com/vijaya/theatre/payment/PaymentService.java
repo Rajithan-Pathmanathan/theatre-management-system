@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
@@ -43,6 +44,7 @@ class PaymentService {
     private final String returnUrl;
     private final String cancelUrl;
     private final String notifyUrl;
+    private final List<BookingAddOns> addOns; // BR-13 — empty when no add-on module is present
 
     PaymentService(BookingRepository bookingRepository, BookingSeatRepository bookingSeatRepository,
                    ShowSeatAllocationRepository showSeatAllocationRepository,
@@ -52,7 +54,8 @@ class PaymentService {
                    @Value("${app.payhere.checkout-base-url}") String checkoutBaseUrl,
                    @Value("${app.payhere.return-url}") String returnUrl,
                    @Value("${app.payhere.cancel-url}") String cancelUrl,
-                   @Value("${app.payhere.notify-url}") String notifyUrl) {
+                   @Value("${app.payhere.notify-url}") String notifyUrl,
+                   List<BookingAddOns> addOns) {
         this.bookingRepository = bookingRepository;
         this.bookingSeatRepository = bookingSeatRepository;
         this.showSeatAllocationRepository = showSeatAllocationRepository;
@@ -63,6 +66,7 @@ class PaymentService {
         this.returnUrl = returnUrl;
         this.cancelUrl = cancelUrl;
         this.notifyUrl = notifyUrl;
+        this.addOns = addOns;
     }
 
     PaymentInitiationResponse initiatePayment(UUID bookingId) {
@@ -74,16 +78,22 @@ class PaymentService {
             throw new BusinessRuleViolationException("The seat lock for this booking has expired.");
         }
 
+        // BR-13 — tickets plus any extras (snacks) chosen on the payment page; booking.totalAmount stays tickets-only for reporting
+        BigDecimal total = booking.getTotalAmount();
+        for (BookingAddOns addOn : addOns) {
+            total = total.add(addOn.chargeWithBooking(bookingId));
+        }
+
         PaymentTransaction transaction = paymentTransactionRepository.findByBookingId(bookingId)
                 .orElseGet(PaymentTransaction::new);
         transaction.setBooking(booking);
         transaction.setGateway(PaymentGateway.PAYHERE);
-        transaction.setAmount(booking.getTotalAmount());
+        transaction.setAmount(total);
         transaction.setCurrency(CURRENCY);
         transaction.setStatus(PaymentStatus.INITIATED);
         paymentTransactionRepository.save(transaction);
 
-        String amount = booking.getTotalAmount().setScale(2, RoundingMode.HALF_UP).toString();
+        String amount = total.setScale(2, RoundingMode.HALF_UP).toString();
         String hash = PayHereHashUtil.requestHash(merchantId, booking.getBookingReference(), amount, CURRENCY, merchantSecret);
         String[] name = splitCustomerName(booking.getCustomerName());
         String email = booking.getCustomerEmail() != null ? booking.getCustomerEmail() : GUEST_EMAIL_FALLBACK;
@@ -122,6 +132,7 @@ class PaymentService {
         if ("2".equals(notification.statusCode())) { // PayHere status_code 2 = payment success
             transaction.setStatus(PaymentStatus.SUCCESS);
             confirmBooking(booking);
+            addOns.forEach(addOn -> addOn.bookingPaid(booking.getId()));
         } else {
             transaction.setStatus(PaymentStatus.FAILED);
         }

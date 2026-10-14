@@ -25,13 +25,11 @@ import java.util.UUID;
  * has, for the canteen queue's benefit) — BR-08 means an order never
  * requires one, and this module never reaches into the booking/payment
  * core's own machinery for it.
- * <p>ponytail: BR-13 says a booking-linked order should "ride the same
- * online payment as the tickets" — not implemented that literally here.
- * Every order (linked or not) is pay-at-collection; merging into the
- * booking's own PayHere charge would mean this module reaching into the
- * concurrency-critical booking/payment core the architecture deliberately
- * keeps decoupled (package-info.java). Revisit with a real combined
- * checkout if the client specifically wants it.</p>
+ * <p>BR-13: snacks added on a booking's payment page start as
+ * AWAITING_PAYMENT and are charged with the tickets through the payment
+ * module's {@code BookingAddOns} port ({@link CanteenBookingAddOns}), so
+ * payment never depends on this module. Every other order is
+ * pay-at-collection ({@code prepaidAmount} null).</p>
  */
 @Entity
 @Table(name = "snack_orders")
@@ -75,4 +73,8 @@ public class SnackOrder extends AuditableEntity {
     /** UC-19 — lets staff verify pickup via a scanned QR, the same pattern as Booking.qrToken. */
     @Column(name = "order_token", nullable = false, unique = true)
     private UUID orderToken;
+
+    /** BR-13 — what was charged online with the booking; null means pay at collection. */
+    @Column(name = "prepaid_amount", precision = 10, scale = 2)
+    private BigDecimal prepaidAmount;
 }
