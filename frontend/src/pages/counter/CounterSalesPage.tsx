@@ -2,11 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { getCounterSeats, listCounterShows, sellCounterTicket } from '../../api/counter'
 import type { PhysicalPaymentMethod, PublicSeatResponse } from '../../api/types'
-import { formatCurrency, formatTime } from '../../lib/format'
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
-}
+import { formatCurrency, formatTime, todayIso } from '../../lib/format'
 
 function seatClasses(seat: PublicSeatResponse, isSelected: boolean): string {
   if (seat.status !== 'AVAILABLE') {

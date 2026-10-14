@@ -309,3 +309,65 @@ export type ShowOccupancyResponse = {
   ticketsUsed: number
   attendanceRatePercent: number
 }
+
+export type SnackItemResponse = {
+  id: string
+  name: string
+  price: number
+  available: boolean
+}
+
+export type SnackItemRequest = {
+  name: string
+  price: number
+}
+
+export type CanteenItemSales = {
+  itemName: string
+  quantitySold: number
+  sales: number
+}
+
+export type CanteenSalesReportResponse = {
+  date: string
+  ordersCollected: number
+  totalSales: number
+  items: CanteenItemSales[]
+}
+
+export type PickupTiming = 'BEFORE_MOVIE' | 'DURING_INTERVAL' | 'BOTH'
+export type SnackOrderStatus = 'PLACED' | 'READY' | 'COLLECTED' | 'CLOSED'
+
+export type SnackOrderRequest = {
+  bookingId: string | null
+  showId: string | null
+  customerName: string
+  customerPhone: string
+  pickupTiming: PickupTiming
+  items: { snackItemId: string; quantity: number }[]
+}
+
+export type SnackOrderItemResponse = {
+  id: string
+  itemName: string
+  unitPrice: number
+  quantity: number
+  unavailable: boolean
+}
+
+export type SnackOrderResponse = {
+  id: string
+  orderDate: string
+  orderNumber: number
+  showId: string
+  movieTitle: string
+  showDate: string
+  startTime: string
+  customerName: string
+  customerPhone: string
+  pickupTiming: PickupTiming
+  status: SnackOrderStatus
+  totalAmount: number
+  items: SnackOrderItemResponse[]
+  linkedBookingReference: string | null
+}

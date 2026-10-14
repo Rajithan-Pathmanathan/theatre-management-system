@@ -16,6 +16,7 @@ const ADMIN_LINKS = [
   { to: '/admin/reports', label: 'Reports' },
   { to: '/admin/analytics', label: 'Analytics' },
   { to: '/admin/employees', label: 'Employees' },
+  { to: '/admin/snack-menu', label: 'Snack Menu' },
 ]
 
 /** Minimal chrome so the customer, counter, and admin flows are all actually navigable end to end. */
@@ -38,6 +39,9 @@ export function RootLayout() {
           <Link to="/bookings/track" className={LINK_CLASS}>
             Track Booking
           </Link>
+          <Link to="/snacks" className={LINK_CLASS}>
+            Order Snacks
+          </Link>
 
           {(staff?.role === 'COUNTER_STAFF' || staff?.role === 'ADMIN') &&
             COUNTER_LINKS.map((link) => (
@@ -45,6 +49,12 @@ export function RootLayout() {
                 {link.label}
               </Link>
             ))}
+
+          {(staff?.role === 'CANTEEN_STAFF' || staff?.role === 'ADMIN') && (
+            <Link to="/canteen/fulfillment" className={LINK_CLASS}>
+              Canteen Orders
+            </Link>
+          )}
 
           {staff?.role === 'ADMIN' &&
             ADMIN_LINKS.map((link) => (
