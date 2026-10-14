@@ -336,7 +336,7 @@ export type CanteenSalesReportResponse = {
 }
 
 export type PickupTiming = 'BEFORE_MOVIE' | 'DURING_INTERVAL' | 'BOTH'
-export type SnackOrderStatus = 'PLACED' | 'READY' | 'COLLECTED' | 'CLOSED'
+export type SnackOrderStatus = 'AWAITING_PAYMENT' | 'PLACED' | 'READY' | 'COLLECTED' | 'CLOSED'
 
 export type SnackOrderRequest = {
   bookingId: string | null
@@ -370,4 +370,6 @@ export type SnackOrderResponse = {
   totalAmount: number
   items: SnackOrderItemResponse[]
   linkedBookingReference: string | null
+  /** BR-13 — charged online with the booking's tickets; null means pay at collection. */
+  prepaidAmount: number | null
 }

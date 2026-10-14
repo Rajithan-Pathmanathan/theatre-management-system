@@ -3,6 +3,11 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getBooking } from '../../api/bookings'
 import { initiatePayment, redirectToPayHereCheckout } from '../../api/payments'
+import { getShow } from '../../api/shows'
+import { listAvailableSnacks, setBookingSnacks } from '../../api/snacks'
+import type { PickupTiming } from '../../api/types'
+import { SnackPicker } from '../../components/SnackPicker'
+import { snackSelection } from '../../lib/snacks'
 import { formatCurrency, formatDate, formatTime } from '../../lib/format'
 
 function formatCountdown(totalSeconds: number): string {
@@ -11,7 +16,7 @@ function formatCountdown(totalSeconds: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
-/** UC-09. The booking is still PENDING_PAYMENT here — BR-03's 10-minute lock is ticking. */
+/** UC-09, BR-13. Snacks picked here are charged in the same payment as the tickets. The booking is still PENDING_PAYMENT here — BR-03's 10-minute lock is ticking. */
 export function BookingConfirmationPage() {
   const { bookingId } = useParams<{ bookingId: string }>()
   const bookingQuery = useQuery({ queryKey: ['booking', bookingId], queryFn: () => getBooking(bookingId!), enabled: !!bookingId })
@@ -26,8 +31,21 @@ export function BookingConfirmationPage() {
   const expiresAt = bookingQuery.data?.expiresAt
   const secondsLeft = expiresAt ? Math.max(0, Math.floor((new Date(expiresAt).getTime() - now) / 1000)) : null
 
+  const [quantities, setQuantities] = useState<Record<string, number>>({})
+  const [pickupTiming, setPickupTiming] = useState<PickupTiming>('BEFORE_MOVIE')
+  const snacksQuery = useQuery({ queryKey: ['snacks'], queryFn: listAvailableSnacks })
+  const showId = bookingQuery.data?.showId
+  const showQuery = useQuery({ queryKey: ['show', showId], queryFn: () => getShow(showId!), enabled: !!showId })
+  const hasInterval = showQuery.data?.hasInterval ?? false
+  const effectivePickup: PickupTiming = hasInterval ? pickupTiming : 'BEFORE_MOVIE' // BR-14
+  const snacks = snackSelection(snacksQuery.data, quantities)
+
   const paymentMutation = useMutation({
-    mutationFn: () => initiatePayment(bookingId!),
+    mutationFn: async () => {
+      // Always saved, even when empty, so a retried payment charges exactly what this page shows.
+      await setBookingSnacks(bookingId!, { pickupTiming: effectivePickup, items: snacks.items })
+      return initiatePayment(bookingId!)
+    },
     onSuccess: redirectToPayHereCheckout,
   })
 
@@ -59,9 +77,21 @@ export function BookingConfirmationPage() {
             {booking.adultCount} adult, {booking.childCount} child
           </span>
         </p>
+        {snacks.total > 0 && (
+          <>
+            <p className="mt-1 flex justify-between text-sm">
+              <span>Ticket total</span>
+              <span>{formatCurrency(booking.totalAmount)}</span>
+            </p>
+            <p className="mt-1 flex justify-between text-sm">
+              <span>Snacks</span>
+              <span>{formatCurrency(snacks.total)}</span>
+            </p>
+          </>
+        )}
         <p className="mt-1 flex justify-between font-semibold">
           <span>Total</span>
-          <span>{formatCurrency(booking.totalAmount)}</span>
+          <span>{formatCurrency(booking.totalAmount + snacks.total)}</span>
         </p>
       </div>
 
@@ -78,6 +108,21 @@ export function BookingConfirmationPage() {
               Seats held for <span className="font-mono font-semibold">{formatCountdown(secondsLeft)}</span>
             </p>
           )}
+
+          <details className="mt-6 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+            <summary className="cursor-pointer font-medium">Add snacks (paid now with your tickets)</summary>
+            <div className="mt-4 flex flex-col gap-4">
+              <SnackPicker
+                snacks={snacksQuery.data}
+                quantities={quantities}
+                onQuantitiesChange={setQuantities}
+                hasInterval={hasInterval}
+                pickup={effectivePickup}
+                onPickupChange={setPickupTiming}
+                noIntervalNote={!!showQuery.data && !hasInterval}
+              />
+            </div>
+          </details>
 
           {paymentMutation.isError && (
             <p className="mt-2 text-sm text-red-600">Could not start payment. Please try again.</p>

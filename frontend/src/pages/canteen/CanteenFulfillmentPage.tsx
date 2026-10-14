@@ -19,6 +19,7 @@ const TABS: { label: string; timing: PickupTiming | null }[] = [
 ]
 
 const STATUS_CLASS: Record<SnackOrderStatus, string> = {
+  AWAITING_PAYMENT: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
   PLACED: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
   READY: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
   COLLECTED: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
@@ -165,10 +166,21 @@ export function CanteenFulfillmentPage() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 flex justify-between border-t border-neutral-200 pt-2 font-semibold dark:border-neutral-800">
-                <span>To collect</span>
-                <span>{formatCurrency(order.totalAmount)}</span>
-              </p>
+              {order.prepaidAmount === null ? (
+                <p className="mt-3 flex justify-between border-t border-neutral-200 pt-2 font-semibold dark:border-neutral-800">
+                  <span>To collect</span>
+                  <span>{formatCurrency(order.totalAmount)}</span>
+                </p>
+              ) : (
+                <p className="mt-3 flex justify-between border-t border-neutral-200 pt-2 font-semibold dark:border-neutral-800">
+                  <span>Paid online</span>
+                  <span>
+                    {order.prepaidAmount > order.totalAmount
+                      ? `Refund ${formatCurrency(order.prepaidAmount - order.totalAmount)}`
+                      : formatCurrency(order.prepaidAmount)}
+                  </span>
+                </p>
+              )}
 
               {active && (
                 <div className="mt-3 flex gap-2">
