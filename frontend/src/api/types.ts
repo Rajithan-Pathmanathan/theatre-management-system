@@ -309,3 +309,28 @@ export type ShowOccupancyResponse = {
   ticketsUsed: number
   attendanceRatePercent: number
 }
+
+export type SnackItemResponse = {
+  id: string
+  name: string
+  price: number
+  available: boolean
+}
+
+export type SnackItemRequest = {
+  name: string
+  price: number
+}
+
+export type CanteenItemSales = {
+  itemName: string
+  quantitySold: number
+  sales: number
+}
+
+export type CanteenSalesReportResponse = {
+  date: string
+  ordersCollected: number
+  totalSales: number
+  items: CanteenItemSales[]
+}
