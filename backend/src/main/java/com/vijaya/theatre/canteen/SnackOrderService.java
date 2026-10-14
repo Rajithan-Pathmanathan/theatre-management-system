@@ -2,6 +2,8 @@ package com.vijaya.theatre.canteen;
 
 import com.vijaya.theatre.booking.Booking;
 import com.vijaya.theatre.booking.BookingRepository;
+import com.vijaya.theatre.canteen.dto.CanteenItemSales;
+import com.vijaya.theatre.canteen.dto.CanteenSalesReportResponse;
 import com.vijaya.theatre.canteen.dto.SnackOrderItemRequest;
 import com.vijaya.theatre.canteen.dto.SnackOrderItemResponse;
 import com.vijaya.theatre.canteen.dto.SnackOrderRequest;
@@ -160,6 +162,30 @@ class SnackOrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setTotalAmount(adjustedTotal);
         return toResponse(snackOrderRepository.save(order), items);
+    }
+
+    /**
+     * FR-57. Orders are pay-at-collection (see {@link SnackOrder}), so only
+     * COLLECTED orders count as sales, and unavailable lines were never charged.
+     */
+    @Transactional(readOnly = true)
+    CanteenSalesReportResponse getDailySalesReport(LocalDate date) {
+        List<SnackOrder> collected = snackOrderRepository.findByOrderDate(date).stream()
+                .filter(order -> order.getStatus() == SnackOrderStatus.COLLECTED)
+                .toList();
+        // ponytail: one item query per order; fine at BR-15's 300 orders/day ceiling
+        Map<String, List<SnackOrderItem>> byItemName = collected.stream()
+                .flatMap(order -> snackOrderItemRepository.findBySnackOrderId(order.getId()).stream())
+                .filter(item -> !item.isUnavailable())
+                .collect(Collectors.groupingBy(SnackOrderItem::getItemName));
+        List<CanteenItemSales> items = byItemName.entrySet().stream()
+                .map(entry -> new CanteenItemSales(entry.getKey(),
+                        entry.getValue().stream().mapToInt(SnackOrderItem::getQuantity).sum(),
+                        entry.getValue().stream().map(SnackOrderItem::lineTotal).reduce(BigDecimal.ZERO, BigDecimal::add)))
+                .sorted(Comparator.comparing(CanteenItemSales::itemName))
+                .toList();
+        BigDecimal total = items.stream().map(CanteenItemSales::sales).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return new CanteenSalesReportResponse(date, collected.size(), total, items);
     }
 
     private void validateStatusTransition(SnackOrderStatus current, SnackOrderStatus next) {
