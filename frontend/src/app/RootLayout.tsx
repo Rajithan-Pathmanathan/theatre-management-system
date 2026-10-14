@@ -50,6 +50,12 @@ export function RootLayout() {
               </Link>
             ))}
 
+          {(staff?.role === 'CANTEEN_STAFF' || staff?.role === 'ADMIN') && (
+            <Link to="/canteen/fulfillment" className={LINK_CLASS}>
+              Canteen Orders
+            </Link>
+          )}
+
           {staff?.role === 'ADMIN' &&
             ADMIN_LINKS.map((link) => (
               <Link key={link.to} to={link.to} className={LINK_CLASS}>
