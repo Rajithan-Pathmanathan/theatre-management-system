@@ -2,11 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listShowsByDate } from '../../api/shows'
-import { formatCurrency, formatTime } from '../../lib/format'
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
-}
+import { formatCurrency, formatTime, todayIso } from '../../lib/format'
 
 /** UC-07, FR-13/14/18 — only guaranteed, online-bookable shows for the chosen date ever appear here. */
 export function MovieBrowsePage() {

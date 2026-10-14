@@ -2,11 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { downloadDailyReportCsv, downloadShowReportCsv, getDailyReport } from '../../api/admin-reports'
 import { getCanteenSalesReport } from '../../api/admin-snacks'
-import { formatCurrency, formatTime } from '../../lib/format'
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
-}
+import { formatCurrency, formatTime, todayIso } from '../../lib/format'
 
 /** UC-14, FR-33–FR-39. Only CONFIRMED bookings count — totals tie back to real realized sales. */
 export function ReportsPage() {
@@ -99,7 +95,7 @@ export function ReportsPage() {
       {canteenQuery.data && (
         <>
           <p className="mt-2 text-sm text-neutral-500">
-            {canteenQuery.data.ordersCollected} orders collected · {formatCurrency(canteenQuery.data.totalSales)}
+            {canteenQuery.data.ordersCollected} {canteenQuery.data.ordersCollected === 1 ? 'order' : 'orders'} collected · {formatCurrency(canteenQuery.data.totalSales)}
           </p>
           {canteenQuery.data.items.length === 0 && <p className="mt-2 text-neutral-500">No collected snack orders on this date.</p>}
           <div className="mt-3 flex flex-col gap-2">

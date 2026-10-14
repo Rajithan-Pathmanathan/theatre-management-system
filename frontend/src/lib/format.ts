@@ -23,3 +23,14 @@ export const PICKUP_LABELS = {
   DURING_INTERVAL: 'During the interval',
   BOTH: 'Before the movie and at the interval',
 } as const
+
+/** YYYY-MM-DD in the browser's own time zone. toISOString() is UTC, which is still "yesterday" in Sri Lanka until 05:30. */
+export function toIsoDate(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${date.getFullYear()}-${month}-${day}`
+}
+
+export function todayIso(): string {
+  return toIsoDate(new Date())
+}

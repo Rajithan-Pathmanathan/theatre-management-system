@@ -5,11 +5,7 @@ import { getBookingByReference } from '../../api/bookings'
 import { listShowsByDate } from '../../api/shows'
 import { createSnackOrder, listAvailableSnacks, snackOrderQrCodeUrl } from '../../api/snacks'
 import type { PickupTiming } from '../../api/types'
-import { formatCurrency, formatDate, formatTime, PICKUP_LABELS } from '../../lib/format'
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
-}
+import { formatCurrency, formatDate, formatTime, PICKUP_LABELS, todayIso } from '../../lib/format'
 
 const INPUT_CLASS = 'mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900'
 

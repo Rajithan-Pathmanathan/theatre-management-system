@@ -4,11 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { getSeatAllocationSummary, updateSeatAllocation } from '../../api/admin-seat-allocation'
 import { listShowsByDate } from '../../api/admin-shows'
 import type { SeatAllocationItemResponse } from '../../api/types'
-import { formatTime } from '../../lib/format'
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
-}
+import { formatTime, todayIso } from '../../lib/format'
 
 function seatClasses(seat: SeatAllocationItemResponse): string {
   if (seat.status === 'BOOKED') return 'border-neutral-400 bg-neutral-400 text-white dark:border-neutral-600 dark:bg-neutral-600'
