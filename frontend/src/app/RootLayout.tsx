@@ -16,6 +16,7 @@ const ADMIN_LINKS = [
   { to: '/admin/reports', label: 'Reports' },
   { to: '/admin/analytics', label: 'Analytics' },
   { to: '/admin/employees', label: 'Employees' },
+  { to: '/admin/snack-menu', label: 'Snack Menu' },
 ]
 
 /** Minimal chrome so the customer, counter, and admin flows are all actually navigable end to end. */
