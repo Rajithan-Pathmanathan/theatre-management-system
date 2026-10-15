@@ -77,10 +77,10 @@ export function CanteenFulfillmentPage() {
   const error = statusMutation.error ?? itemMutation.error
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Canteen Orders</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Canteen Orders</h1>
 
-      <div className="mt-6 flex flex-wrap items-end gap-4">
+      <div className="mt-6 flex flex-wrap items-end gap-4 rounded-xl border border-neutral-200 bg-white p-4">
         <label className="text-sm font-medium">
           Date
           <input
@@ -111,8 +111,8 @@ export function CanteenFulfillmentPage() {
             key={tab.label}
             type="button"
             onClick={() => setTiming(tab.timing)}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium ${
-              timing === tab.timing ? 'bg-brand text-white' : 'border border-neutral-300'
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+              timing === tab.timing ? 'bg-brand text-white' : 'border border-neutral-300 bg-white hover:border-brand'
             }`}
           >
             {tab.label}

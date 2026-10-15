@@ -46,8 +46,8 @@ export function EmployeesPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Employees</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Employees</h1>
 
       <div className="mt-6 grid gap-8 md:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-2">
@@ -76,7 +76,7 @@ export function EmployeesPage() {
                 <button
                   type="button"
                   onClick={() => statusMutation.mutate({ id: employee.id, active: !employee.active })}
-                  className="rounded-lg border border-neutral-300 px-2 py-1 text-xs"
+                  className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs hover:border-brand"
                 >
                   {employee.active ? 'Deactivate' : 'Reactivate'}
                 </button>
@@ -85,8 +85,8 @@ export function EmployeesPage() {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <h2 className="font-medium">{editingId ? 'Edit Employee' : 'New Employee'}</h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 self-start rounded-xl border border-neutral-200 bg-white p-4 md:sticky md:top-32">
+          <h2 className="text-lg font-semibold">{editingId ? 'Edit Employee' : 'New Employee'}</h2>
           <label className="text-sm font-medium">
             Full name
             <input
@@ -159,7 +159,7 @@ export function EmployeesPage() {
                   setEditingId(null)
                   setForm(EMPTY_FORM)
                 }}
-                className="rounded-lg border border-neutral-300 px-4 py-2 font-medium"
+                className="rounded-lg border border-neutral-300 bg-white px-4 py-2 font-medium hover:border-brand"
               >
                 Cancel
               </button>

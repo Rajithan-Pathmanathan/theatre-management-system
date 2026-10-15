@@ -71,8 +71,8 @@ export function ShowsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Shows</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Shows</h1>
 
       <label className="mt-4 block text-sm font-medium">
         Date
@@ -128,8 +128,8 @@ export function ShowsPage() {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <h2 className="font-medium">{editingId ? 'Edit Show' : 'New Show'}</h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 self-start rounded-xl border border-neutral-200 bg-white p-4 md:sticky md:top-32">
+          <h2 className="text-lg font-semibold">{editingId ? 'Edit Show' : 'New Show'}</h2>
           <label className="text-sm font-medium">
             Movie
             <select
@@ -244,7 +244,7 @@ export function ShowsPage() {
                   setEditingId(null)
                   setForm(emptyForm(date))
                 }}
-                className="rounded-lg border border-neutral-300 px-4 py-2 font-medium"
+                className="rounded-lg border border-neutral-300 bg-white px-4 py-2 font-medium hover:border-brand"
               >
                 Cancel
               </button>

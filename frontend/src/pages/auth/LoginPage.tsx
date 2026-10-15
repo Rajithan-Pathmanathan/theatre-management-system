@@ -42,8 +42,8 @@ export function LoginPage() {
   }
 
   return (
-    <main className="mx-auto max-w-sm px-6 py-16">
-      <h1 className="text-2xl font-semibold">Staff Login</h1>
+    <main className="mx-4 my-12 max-w-sm rounded-2xl border border-neutral-200 bg-white px-6 py-8 shadow-sm sm:mx-auto">
+      <h1 className="text-2xl font-bold">Staff Login</h1>
       <p className="mt-1 text-sm text-neutral-600">
         Counter, canteen, and admin staff only — customers don't need an account.
       </p>

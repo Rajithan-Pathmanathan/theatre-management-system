@@ -52,10 +52,10 @@ export function SeatAllocationPage() {
   }, [summaryQuery.data])
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Seat Allocation</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Seat Allocation</h1>
 
-      <div className="mt-4 flex gap-4">
+      <div className="mt-4 flex flex-wrap gap-4 rounded-xl border border-neutral-200 bg-white p-4">
         <label className="text-sm font-medium">
           Date
           <input

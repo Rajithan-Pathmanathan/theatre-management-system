@@ -25,11 +25,11 @@ export function AnalyticsPage() {
   const occupancyQuery = useQuery({ queryKey: ['occupancy-trend', from, to], queryFn: () => getOccupancyTrend(from, to) })
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Analytics</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Analytics</h1>
 
       <section className="mt-6">
-        <h2 className="font-medium">Movie performance</h2>
+        <h2 className="text-lg font-semibold">Movie performance</h2>
         <label className="mt-2 block text-sm font-medium">
           Movie
           <select
@@ -50,19 +50,19 @@ export function AnalyticsPage() {
           <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Shows</p>
-              <p className="text-2xl font-semibold">{movieAnalyticsQuery.data.totalShows}</p>
+              <p className="text-2xl font-bold">{movieAnalyticsQuery.data.totalShows}</p>
             </div>
             <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Avg. occupancy</p>
-              <p className="text-2xl font-semibold">{movieAnalyticsQuery.data.averageOccupancyPercent}%</p>
+              <p className="text-2xl font-bold">{movieAnalyticsQuery.data.averageOccupancyPercent}%</p>
             </div>
             <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Attendance rate</p>
-              <p className="text-2xl font-semibold">{movieAnalyticsQuery.data.attendanceRatePercent}%</p>
+              <p className="text-2xl font-bold">{movieAnalyticsQuery.data.attendanceRatePercent}%</p>
             </div>
             <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Collections</p>
-              <p className="text-2xl font-semibold">{formatCurrency(movieAnalyticsQuery.data.collections)}</p>
+              <p className="text-2xl font-bold">{formatCurrency(movieAnalyticsQuery.data.collections)}</p>
             </div>
             <div className="col-span-2 rounded-xl border border-neutral-200 bg-white p-4 md:col-span-4">
               <p className="text-sm text-neutral-500">
@@ -76,7 +76,7 @@ export function AnalyticsPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="font-medium">Occupancy trend</h2>
+        <h2 className="text-lg font-semibold">Occupancy trend</h2>
         <div className="mt-2 flex gap-4">
           <label className="text-sm font-medium">
             From

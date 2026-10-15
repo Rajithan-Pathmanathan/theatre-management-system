@@ -95,8 +95,8 @@ export function CounterSalesPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Counter Sales</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Counter Sales</h1>
 
       <label className="mt-6 block text-sm font-medium">
         Date
@@ -122,10 +122,10 @@ export function CounterSalesPage() {
             key={show.id}
             type="button"
             onClick={() => selectShow(show.id)}
-            className={`rounded-md border px-3 py-2 text-left text-sm ${
+            className={`rounded-lg border px-3 py-2 text-left text-sm ${
               show.id === showId
                 ? 'border-brand bg-brand text-white'
-                : 'border-neutral-300 hover:border-brand'
+                : 'border-neutral-300 bg-white hover:border-brand'
             }`}
           >
             <p className="font-medium">{show.movieTitle}</p>
@@ -135,8 +135,8 @@ export function CounterSalesPage() {
       </div>
 
       {showId && (
-        <form onSubmit={handleSubmit} className="mt-8 grid gap-8 md:grid-cols-[2fr_1fr]">
-          <div>
+        <form onSubmit={handleSubmit} className="mt-8 grid gap-6 md:grid-cols-[2fr_1fr]">
+          <div className="min-w-0 rounded-xl border border-neutral-200 bg-white p-4">
             <div className="flex gap-6">
               <label className="text-sm font-medium">
                 Adults
@@ -194,7 +194,7 @@ export function CounterSalesPage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 self-start rounded-xl border border-neutral-200 bg-white p-4">
             <label className="text-sm font-medium">
               Payment method
               <select

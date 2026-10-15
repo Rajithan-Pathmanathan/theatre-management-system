@@ -15,9 +15,9 @@ export function ReportsPage() {
   })
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Daily Report</h1>
+        <h1 className="text-2xl font-bold">Daily Report</h1>
         <button
           type="button"
           onClick={() => dailyExportMutation.mutate()}
@@ -42,24 +42,24 @@ export function ReportsPage() {
 
       {reportQuery.data && (
         <>
-          <div className="mt-6 grid grid-cols-3 gap-4">
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Total tickets</p>
-              <p className="text-2xl font-semibold">{reportQuery.data.totalTicketsSold}</p>
+              <p className="text-2xl font-bold">{reportQuery.data.totalTicketsSold}</p>
             </div>
             <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Total collections</p>
-              <p className="text-2xl font-semibold">{formatCurrency(reportQuery.data.totalCollections)}</p>
+              <p className="text-2xl font-bold">{formatCurrency(reportQuery.data.totalCollections)}</p>
             </div>
             <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Online / Physical</p>
-              <p className="text-2xl font-semibold">
+              <p className="text-2xl font-bold">
                 {reportQuery.data.online.ticketsSold} / {reportQuery.data.physical.ticketsSold}
               </p>
             </div>
           </div>
 
-          <h2 className="mt-8 font-medium">By show</h2>
+          <h2 className="mt-8 text-lg font-semibold">By show</h2>
           {reportQuery.data.shows.length === 0 && <p className="mt-2 text-neutral-500">No confirmed bookings on this date.</p>}
           <div className="mt-3 flex flex-col gap-2">
             {reportQuery.data.shows.map((show) => (
@@ -91,7 +91,7 @@ export function ReportsPage() {
       )}
 
       {/* FR-57 — collected orders only; snacks are pay-at-collection. */}
-      <h2 className="mt-10 font-medium">Canteen sales</h2>
+      <h2 className="mt-10 text-lg font-semibold">Canteen sales</h2>
       {canteenQuery.data && (
         <>
           <p className="mt-2 text-sm text-neutral-500">

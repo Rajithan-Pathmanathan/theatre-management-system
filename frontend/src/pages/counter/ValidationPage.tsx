@@ -45,10 +45,10 @@ export function ValidationPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Validate Booking</h1>
+    <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Validate Booking</h1>
 
-      <form onSubmit={handleSearch} className="mt-6 flex flex-col gap-3">
+      <form onSubmit={handleSearch} className="mt-6 flex flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-4">
         <div className="flex gap-4 text-sm">
           <label className="flex items-center gap-1">
             <input type="radio" checked={mode === 'reference'} onChange={() => setMode('reference')} />
