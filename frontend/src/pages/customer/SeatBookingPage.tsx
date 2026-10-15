@@ -1,10 +1,19 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { createBooking } from '../../api/bookings'
 import { getShow, getShowSeats } from '../../api/shows'
 import type { PublicSeatResponse } from '../../api/types'
 import { formatCurrency, formatDate, formatTime } from '../../lib/format'
+
+const INPUT_CLASS = 'mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2'
+const COUNT_CLASS = 'mt-1 block w-20 rounded-lg border border-neutral-300 px-2 py-1.5'
+
+const LEGEND = [
+  { label: 'Available', className: 'border-emerald-500 bg-white' },
+  { label: 'Selected', className: 'border-emerald-500 bg-emerald-500' },
+  { label: 'Booked', className: 'border-neutral-200 bg-neutral-200' },
+]
 
 const ZONE_LABEL: Record<PublicSeatResponse['zone'], string> = {
   FRONT: 'Front',
@@ -15,12 +24,12 @@ const ZONE_LABEL: Record<PublicSeatResponse['zone'], string> = {
 
 function seatClasses(seat: PublicSeatResponse, isSelected: boolean): string {
   if (seat.status !== 'AVAILABLE') {
-    return 'cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-600'
+    return 'cursor-not-allowed border-neutral-200 bg-neutral-200 text-neutral-400'
   }
   if (isSelected) {
-    return 'border-emerald-600 bg-emerald-600 text-white'
+    return 'border-emerald-500 bg-emerald-500 text-white'
   }
-  return 'border-neutral-300 bg-white hover:border-emerald-500 dark:border-neutral-700 dark:bg-neutral-950'
+  return 'border-emerald-500 bg-white text-emerald-700 hover:bg-emerald-500 hover:text-white'
 }
 
 /** UC-08, BR-04 — exactly adultCount + childCount seats must be picked before a lock can be requested. */
@@ -99,100 +108,110 @@ export function SeatBookingPage() {
   const total = adultCount * show.adultPrice + childCount * show.childPrice
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">{show.movieTitle}</h1>
-      <p className="text-neutral-600 dark:text-neutral-400">
-        {formatDate(show.showDate)} · {formatTime(show.startTime)}
-      </p>
-
-      <form onSubmit={handleSubmit} className="mt-8 grid gap-8 md:grid-cols-[2fr_1fr]">
-        <div>
-          <div className="flex gap-6">
-            <label className="text-sm font-medium">
-              Adults
-              <input
-                type="number"
-                min={0}
-                max={10}
-                value={adultCount}
-                onChange={(event) => setAdultCount(Math.max(0, Number(event.target.value)))}
-                className="mt-1 block w-20 rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
-              />
-            </label>
-            <label className="text-sm font-medium">
-              Children
-              <input
-                type="number"
-                min={0}
-                max={10}
-                value={childCount}
-                onChange={(event) => setChildCount(Math.max(0, Number(event.target.value)))}
-                className="mt-1 block w-20 rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
-              />
-            </label>
-          </div>
-
-          <p className="mt-4 text-sm text-neutral-500">
-            Select {requiredSeats} seat(s) — {selectedSeatIds.length} selected
+    <main className="pb-28">
+      <div className="border-b border-neutral-200 bg-white">
+        <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
+          <Link to={`/movies/${show.movieId}`} className="text-sm text-neutral-500 hover:text-brand">
+            ‹ Back to showtimes
+          </Link>
+          <h1 className="mt-1 text-xl font-bold sm:text-2xl">{show.movieTitle}</h1>
+          <p className="text-sm text-neutral-600">
+            Vijaya Theatre, Batticaloa · {formatDate(show.showDate)} · {formatTime(show.startTime)}
           </p>
+        </div>
+      </div>
 
-          <div className="mt-3 flex flex-col gap-2">
-            {seatsByRow.map(([rowLabel, seats]) => (
-              <div key={rowLabel} className="flex items-center gap-2">
-                <span className="w-5 text-xs font-mono text-neutral-400">{rowLabel}</span>
-                <div className="flex flex-wrap gap-1">
-                  {seats.map((seat) => (
-                    <button
-                      key={seat.seatId}
-                      type="button"
-                      title={`${seat.seatNumber} · ${ZONE_LABEL[seat.zone]}`}
-                      disabled={seat.status !== 'AVAILABLE'}
-                      onClick={() => toggleSeat(seat)}
-                      className={`h-7 w-7 rounded border text-[10px] font-medium ${seatClasses(seat, selectedSeatIds.includes(seat.seatId))}`}
-                    >
-                      {seat.seatInRow}
-                    </button>
-                  ))}
+      <form onSubmit={handleSubmit} className="mx-auto mt-6 grid max-w-5xl gap-6 px-4 sm:px-6 md:grid-cols-[2fr_1fr]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <section className="rounded-xl border border-neutral-200 bg-white p-4">
+            <h2 className="font-semibold">How many tickets?</h2>
+            <div className="mt-3 flex gap-6">
+              <div>
+                <label className="text-sm font-medium">
+                  Adults
+                  <input
+                    type="number"
+                    min={0}
+                    max={10}
+                    value={adultCount}
+                    onChange={(event) => setAdultCount(Math.max(0, Number(event.target.value)))}
+                    className={COUNT_CLASS}
+                  />
+                </label>
+                <p className="mt-1 text-xs text-neutral-500">{formatCurrency(show.adultPrice)} each</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">
+                  Children
+                  <input
+                    type="number"
+                    min={0}
+                    max={10}
+                    value={childCount}
+                    onChange={(event) => setChildCount(Math.max(0, Number(event.target.value)))}
+                    className={COUNT_CLASS}
+                  />
+                </label>
+                <p className="mt-1 text-xs text-neutral-500">{formatCurrency(show.childPrice)} each</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-xl border border-neutral-200 bg-white p-4">
+            <h2 className="font-semibold">Pick {requiredSeats} seat(s)</h2>
+            <div className="mt-4 overflow-x-auto pb-2">
+              <div className="mx-auto flex w-max flex-col gap-2">
+                {seatsByRow.map(([rowLabel, seats]) => (
+                  <div key={rowLabel} className="flex items-center gap-2">
+                    <span className="w-5 text-xs font-mono text-neutral-400">{rowLabel}</span>
+                    <div className="flex gap-1.5">
+                      {seats.map((seat) => (
+                        <button
+                          key={seat.seatId}
+                          type="button"
+                          title={`${seat.seatNumber} · ${ZONE_LABEL[seat.zone]}`}
+                          disabled={seat.status !== 'AVAILABLE'}
+                          aria-pressed={selectedSeatIds.includes(seat.seatId)}
+                          onClick={() => toggleSeat(seat)}
+                          className={`h-7 w-7 rounded-md border text-[10px] font-medium transition ${seatClasses(seat, selectedSeatIds.includes(seat.seatId))}`}
+                        >
+                          {seat.seatInRow}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <div className="mt-6 ml-7">
+                  <div className="h-1.5 rounded-full bg-gradient-to-r from-transparent via-neutral-400 to-transparent" />
+                  <p className="mt-1 text-center text-xs tracking-widest text-neutral-500 uppercase">Screen this way</p>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+            <ul className="mt-4 flex flex-wrap justify-center gap-5 text-xs text-neutral-600">
+              {LEGEND.map((item) => (
+                <li key={item.label} className="flex items-center gap-1.5">
+                  <span className={`inline-block h-4 w-4 rounded border ${item.className}`} />
+                  {item.label}
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <section className="flex flex-col gap-3 self-start rounded-xl border border-neutral-200 bg-white p-4">
+          <h2 className="font-semibold">Your details</h2>
           <label className="text-sm font-medium">
             Name
-            <input
-              value={customerName}
-              onChange={(event) => setCustomerName(event.target.value)}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
-            />
+            <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} className={INPUT_CLASS} />
           </label>
           <label className="text-sm font-medium">
             Phone
-            <input
-              value={customerPhone}
-              onChange={(event) => setCustomerPhone(event.target.value)}
-              placeholder="+94"
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
-            />
+            <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} placeholder="+94" className={INPUT_CLASS} />
           </label>
           <label className="text-sm font-medium">
             Email (optional)
-            <input
-              type="email"
-              value={customerEmail}
-              onChange={(event) => setCustomerEmail(event.target.value)}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
-            />
+            <input type="email" value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)} className={INPUT_CLASS} />
           </label>
-
-          <div className="mt-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-            <p className="flex justify-between text-sm">
-              <span>Total</span>
-              <span className="font-semibold">{formatCurrency(total)}</span>
-            </p>
-          </div>
 
           {formError && <p className="text-sm text-red-600">{formError}</p>}
           {bookingMutation.isError && (
@@ -201,14 +220,24 @@ export function SeatBookingPage() {
                 'Could not create the booking. Please try again.'}
             </p>
           )}
+        </section>
 
-          <button
-            type="submit"
-            disabled={bookingMutation.isPending}
-            className="mt-2 rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
-          >
-            {bookingMutation.isPending ? 'Locking seats…' : 'Continue to Payment'}
-          </button>
+        <div className="fixed inset-x-0 bottom-0 z-10 border-t border-neutral-200 bg-white shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+          <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+            <div>
+              <p className="text-lg font-bold">{formatCurrency(total)}</p>
+              <p className="text-xs text-neutral-500">
+                {requiredSeats} ticket(s) · {selectedSeatIds.length} selected
+              </p>
+            </div>
+            <button
+              type="submit"
+              disabled={bookingMutation.isPending}
+              className="rounded-lg bg-brand px-6 py-2.5 font-semibold text-white transition hover:bg-brand-dark disabled:opacity-50"
+            >
+              {bookingMutation.isPending ? 'Locking seats…' : 'Continue to Payment'}
+            </button>
+          </div>
         </div>
       </form>
     </main>

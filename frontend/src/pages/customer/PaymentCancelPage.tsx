@@ -6,23 +6,23 @@ export function PaymentCancelPage() {
   const bookingId = params.get('bookingId')
 
   return (
-    <main className="mx-auto max-w-xl px-6 py-10 text-center">
-      <h1 className="text-2xl font-semibold">Payment Cancelled</h1>
-      <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+    <main className="mx-4 my-8 max-w-xl rounded-2xl border border-neutral-200 bg-white px-4 py-8 text-center shadow-sm sm:mx-auto sm:px-8">
+      <h1 className="text-2xl font-bold">Payment Cancelled</h1>
+      <p className="mt-2 text-neutral-600">
         No charge was made. Your seats stay held until the 10-minute lock expires — you can try paying again.
       </p>
 
       {bookingId && (
         <Link
           to={`/bookings/${bookingId}/confirm`}
-          className="mt-6 inline-block rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700"
+          className="mt-6 inline-block rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark"
         >
           Try Payment Again
         </Link>
       )}
 
       <div className="mt-4">
-        <Link to="/" className="text-sm text-emerald-600 hover:underline">
+        <Link to="/" className="text-sm text-brand hover:underline">
           Back to showtimes
         </Link>
       </div>

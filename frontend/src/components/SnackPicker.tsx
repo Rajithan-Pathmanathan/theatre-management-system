@@ -21,7 +21,7 @@ export function SnackPicker({ snacks, quantities, onQuantitiesChange, hasInterva
         {snacks?.length === 0 && <p className="mt-2 text-sm text-neutral-500">The canteen menu is empty right now.</p>}
         <div className="mt-2 flex flex-col gap-2">
           {snacks?.map((snack) => (
-            <label key={snack.id} className="flex items-center justify-between rounded-lg border border-neutral-200 px-4 py-2 dark:border-neutral-800">
+            <label key={snack.id} className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-4 py-2">
               <span>
                 {snack.name} <span className="text-neutral-500">· {formatCurrency(snack.price)}</span>
               </span>
@@ -32,7 +32,7 @@ export function SnackPicker({ snacks, quantities, onQuantitiesChange, hasInterva
                 value={quantities[snack.id] ?? 0}
                 onChange={(event) => onQuantitiesChange({ ...quantities, [snack.id]: Number(event.target.value) })}
                 aria-label={`${snack.name} quantity`}
-                className="w-16 rounded-md border border-neutral-300 px-2 py-1 text-right dark:border-neutral-700 dark:bg-neutral-900"
+                className="w-16 rounded-lg border border-neutral-300 px-2 py-1 text-right"
               />
             </label>
           ))}

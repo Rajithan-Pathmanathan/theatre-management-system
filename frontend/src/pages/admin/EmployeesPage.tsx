@@ -46,15 +46,15 @@ export function EmployeesPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Employees</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Employees</h1>
 
       <div className="mt-6 grid gap-8 md:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-2">
           {employeesQuery.isPending && <p className="text-neutral-500">Loading…</p>}
           {employeesQuery.data?.length === 0 && <p className="text-neutral-500">No employees yet.</p>}
           {employeesQuery.data?.map((employee) => (
-            <div key={employee.id} className="flex items-center justify-between rounded-lg border border-neutral-200 px-4 py-3 dark:border-neutral-800">
+            <div key={employee.id} className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-4 py-3">
               <button type="button" onClick={() => startEdit(employee)} className="text-left">
                 <p className="font-medium">{employee.fullName}</p>
                 <p className="text-sm text-neutral-500">
@@ -67,8 +67,8 @@ export function EmployeesPage() {
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     employee.active
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
-                      : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-neutral-100 text-neutral-600'
                   }`}
                 >
                   {employee.active ? 'Active' : 'Inactive'}
@@ -76,7 +76,7 @@ export function EmployeesPage() {
                 <button
                   type="button"
                   onClick={() => statusMutation.mutate({ id: employee.id, active: !employee.active })}
-                  className="rounded-md border border-neutral-300 px-2 py-1 text-xs dark:border-neutral-700"
+                  className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-xs hover:border-brand"
                 >
                   {employee.active ? 'Deactivate' : 'Reactivate'}
                 </button>
@@ -85,14 +85,14 @@ export function EmployeesPage() {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <h2 className="font-medium">{editingId ? 'Edit Employee' : 'New Employee'}</h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 self-start rounded-xl border border-neutral-200 bg-white p-4 md:sticky md:top-32">
+          <h2 className="text-lg font-semibold">{editingId ? 'Edit Employee' : 'New Employee'}</h2>
           <label className="text-sm font-medium">
             Full name
             <input
               value={form.fullName}
               onChange={(event) => setForm({ ...form, fullName: event.target.value })}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
           <label className="text-sm font-medium">
@@ -101,7 +101,7 @@ export function EmployeesPage() {
               value={form.role}
               onChange={(event) => setForm({ ...form, role: event.target.value })}
               placeholder="e.g. Usher, Cashier, Projectionist"
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
           <label className="text-sm font-medium">
@@ -109,7 +109,7 @@ export function EmployeesPage() {
             <input
               value={form.phoneNumber ?? ''}
               onChange={(event) => setForm({ ...form, phoneNumber: event.target.value || null })}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
           <label className="text-sm font-medium">
@@ -118,7 +118,7 @@ export function EmployeesPage() {
               type="email"
               value={form.email ?? ''}
               onChange={(event) => setForm({ ...form, email: event.target.value || null })}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
           <label className="text-sm font-medium">
@@ -126,7 +126,7 @@ export function EmployeesPage() {
             <select
               value={form.linkedStaffAccountId ?? ''}
               onChange={(event) => setForm({ ...form, linkedStaffAccountId: event.target.value || null })}
-              className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
             >
               <option value="">None</option>
               {staffQuery.data?.map((staff) => (
@@ -148,7 +148,7 @@ export function EmployeesPage() {
             <button
               type="submit"
               disabled={saveMutation.isPending}
-              className="rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+              className="rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
             >
               {editingId ? 'Save' : 'Create'}
             </button>
@@ -159,7 +159,7 @@ export function EmployeesPage() {
                   setEditingId(null)
                   setForm(EMPTY_FORM)
                 }}
-                className="rounded-md border border-neutral-300 px-4 py-2 font-medium dark:border-neutral-700"
+                className="rounded-lg border border-neutral-300 bg-white px-4 py-2 font-medium hover:border-brand"
               >
                 Cancel
               </button>

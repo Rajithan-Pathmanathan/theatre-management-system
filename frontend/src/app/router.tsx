@@ -14,6 +14,7 @@ import { CanteenFulfillmentPage } from '../pages/canteen/CanteenFulfillmentPage'
 import { BookingConfirmationPage } from '../pages/customer/BookingConfirmationPage'
 import { BookingStatusPage } from '../pages/customer/BookingStatusPage'
 import { MovieBrowsePage } from '../pages/customer/MovieBrowsePage'
+import { MovieDetailPage } from '../pages/customer/MovieDetailPage'
 import { PaymentCancelPage } from '../pages/customer/PaymentCancelPage'
 import { PaymentSuccessPage } from '../pages/customer/PaymentSuccessPage'
 import { SeatBookingPage } from '../pages/customer/SeatBookingPage'
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { path: '/', element: <MovieBrowsePage /> }, // UC-07
+      { path: '/movies/:movieId', element: <MovieDetailPage /> }, // UC-07
       { path: '/shows/:showId', element: <SeatBookingPage /> }, // UC-08
       { path: '/bookings/:bookingId/confirm', element: <BookingConfirmationPage /> }, // UC-09
       { path: '/payment/success', element: <PaymentSuccessPage /> }, // UC-09 — PayHere return_url

@@ -25,17 +25,17 @@ export function AnalyticsPage() {
   const occupancyQuery = useQuery({ queryKey: ['occupancy-trend', from, to], queryFn: () => getOccupancyTrend(from, to) })
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Analytics</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Analytics</h1>
 
       <section className="mt-6">
-        <h2 className="font-medium">Movie performance</h2>
+        <h2 className="text-lg font-semibold">Movie performance</h2>
         <label className="mt-2 block text-sm font-medium">
           Movie
           <select
             value={movieId}
             onChange={(event) => setMovieId(event.target.value)}
-            className="mt-1 block w-full max-w-sm rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block w-full max-w-sm rounded-lg border border-neutral-300 px-3 py-2"
           >
             <option value="">Select a movie…</option>
             {moviesQuery.data?.map((movie) => (
@@ -48,23 +48,23 @@ export function AnalyticsPage() {
 
         {movieAnalyticsQuery.data && (
           <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Shows</p>
-              <p className="text-2xl font-semibold">{movieAnalyticsQuery.data.totalShows}</p>
+              <p className="text-2xl font-bold">{movieAnalyticsQuery.data.totalShows}</p>
             </div>
-            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Avg. occupancy</p>
-              <p className="text-2xl font-semibold">{movieAnalyticsQuery.data.averageOccupancyPercent}%</p>
+              <p className="text-2xl font-bold">{movieAnalyticsQuery.data.averageOccupancyPercent}%</p>
             </div>
-            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Attendance rate</p>
-              <p className="text-2xl font-semibold">{movieAnalyticsQuery.data.attendanceRatePercent}%</p>
+              <p className="text-2xl font-bold">{movieAnalyticsQuery.data.attendanceRatePercent}%</p>
             </div>
-            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-sm text-neutral-500">Collections</p>
-              <p className="text-2xl font-semibold">{formatCurrency(movieAnalyticsQuery.data.collections)}</p>
+              <p className="text-2xl font-bold">{formatCurrency(movieAnalyticsQuery.data.collections)}</p>
             </div>
-            <div className="col-span-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 md:col-span-4">
+            <div className="col-span-2 rounded-xl border border-neutral-200 bg-white p-4 md:col-span-4">
               <p className="text-sm text-neutral-500">
                 {movieAnalyticsQuery.data.ticketsSold} tickets sold ({movieAnalyticsQuery.data.ticketsUsed} checked in) — online{' '}
                 {movieAnalyticsQuery.data.online.ticketsSold} ({formatCurrency(movieAnalyticsQuery.data.online.collections)}), physical{' '}
@@ -76,7 +76,7 @@ export function AnalyticsPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="font-medium">Occupancy trend</h2>
+        <h2 className="text-lg font-semibold">Occupancy trend</h2>
         <div className="mt-2 flex gap-4">
           <label className="text-sm font-medium">
             From
@@ -84,7 +84,7 @@ export function AnalyticsPage() {
               type="date"
               value={from}
               onChange={(event) => setFrom(event.target.value)}
-              className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
           <label className="text-sm font-medium">
@@ -93,7 +93,7 @@ export function AnalyticsPage() {
               type="date"
               value={to}
               onChange={(event) => setTo(event.target.value)}
-              className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+              className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2"
             />
           </label>
         </div>
@@ -103,7 +103,7 @@ export function AnalyticsPage() {
 
         <div className="mt-4 flex flex-col gap-2">
           {occupancyQuery.data?.map((show) => (
-            <div key={show.showId} className="flex items-center justify-between rounded-lg border border-neutral-200 px-4 py-3 dark:border-neutral-800">
+            <div key={show.showId} className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-4 py-3">
               <div>
                 <p className="font-medium">{show.movieTitle}</p>
                 <p className="text-sm text-neutral-500">

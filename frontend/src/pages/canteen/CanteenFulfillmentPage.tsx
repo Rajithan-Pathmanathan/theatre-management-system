@@ -19,11 +19,11 @@ const TABS: { label: string; timing: PickupTiming | null }[] = [
 ]
 
 const STATUS_CLASS: Record<SnackOrderStatus, string> = {
-  AWAITING_PAYMENT: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
-  PLACED: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
-  READY: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
-  COLLECTED: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
-  CLOSED: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
+  AWAITING_PAYMENT: 'bg-neutral-100 text-neutral-600',
+  PLACED: 'bg-amber-100 text-amber-800',
+  READY: 'bg-emerald-100 text-emerald-800',
+  COLLECTED: 'bg-neutral-100 text-neutral-600',
+  CLOSED: 'bg-neutral-100 text-neutral-600',
 }
 
 /**
@@ -77,17 +77,17 @@ export function CanteenFulfillmentPage() {
   const error = statusMutation.error ?? itemMutation.error
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Canteen Orders</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Canteen Orders</h1>
 
-      <div className="mt-6 flex flex-wrap items-end gap-4">
+      <div className="mt-6 flex flex-wrap items-end gap-4 rounded-xl border border-neutral-200 bg-white p-4">
         <label className="text-sm font-medium">
           Date
           <input
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
-            className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2"
           />
         </label>
         <label className="flex-1 text-sm font-medium">
@@ -96,7 +96,7 @@ export function CanteenFulfillmentPage() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="e.g. 42"
-            className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 font-mono dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono"
           />
         </label>
         <label className="flex items-center gap-2 pb-2 text-sm">
@@ -111,8 +111,8 @@ export function CanteenFulfillmentPage() {
             key={tab.label}
             type="button"
             onClick={() => setTiming(tab.timing)}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium ${
-              timing === tab.timing ? 'bg-emerald-600 text-white' : 'border border-neutral-300 dark:border-neutral-700'
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+              timing === tab.timing ? 'bg-brand text-white' : 'border border-neutral-300 bg-white hover:border-brand'
             }`}
           >
             {tab.label}
@@ -133,7 +133,7 @@ export function CanteenFulfillmentPage() {
         {orders.map((order) => {
           const active = ACTIVE.includes(order.status)
           return (
-            <div key={order.id} className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+            <div key={order.id} className="rounded-xl border border-neutral-200 bg-white p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-2xl font-bold">#{order.orderNumber}</p>
@@ -167,12 +167,12 @@ export function CanteenFulfillmentPage() {
                 ))}
               </ul>
               {order.prepaidAmount === null ? (
-                <p className="mt-3 flex justify-between border-t border-neutral-200 pt-2 font-semibold dark:border-neutral-800">
+                <p className="mt-3 flex justify-between border-t border-neutral-200 pt-2 font-semibold">
                   <span>To collect</span>
                   <span>{formatCurrency(order.totalAmount)}</span>
                 </p>
               ) : (
-                <p className="mt-3 flex justify-between border-t border-neutral-200 pt-2 font-semibold dark:border-neutral-800">
+                <p className="mt-3 flex justify-between border-t border-neutral-200 pt-2 font-semibold">
                   <span>Paid online</span>
                   <span>
                     {order.prepaidAmount > order.totalAmount
@@ -188,7 +188,7 @@ export function CanteenFulfillmentPage() {
                     <button
                       type="button"
                       onClick={() => statusMutation.mutate({ id: order.id, status: 'READY' })}
-                      className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium dark:border-neutral-700"
+                      className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium"
                     >
                       Mark ready
                     </button>
@@ -196,7 +196,7 @@ export function CanteenFulfillmentPage() {
                   <button
                     type="button"
                     onClick={() => statusMutation.mutate({ id: order.id, status: 'COLLECTED' })}
-                    className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
+                    className="rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
                   >
                     Collected
                   </button>

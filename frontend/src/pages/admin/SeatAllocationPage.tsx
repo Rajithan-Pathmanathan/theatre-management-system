@@ -7,11 +7,11 @@ import type { SeatAllocationItemResponse } from '../../api/types'
 import { formatTime, todayIso } from '../../lib/format'
 
 function seatClasses(seat: SeatAllocationItemResponse): string {
-  if (seat.status === 'BOOKED') return 'border-neutral-400 bg-neutral-400 text-white dark:border-neutral-600 dark:bg-neutral-600'
-  if (seat.status === 'LOCKED') return 'border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200'
+  if (seat.status === 'BOOKED') return 'border-neutral-400 bg-neutral-400 text-white'
+  if (seat.status === 'LOCKED') return 'border-amber-400 bg-amber-100 text-amber-800'
   return seat.channel === 'ONLINE'
-    ? 'border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-    : 'border-neutral-300 bg-white text-neutral-600 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-400'
+    ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
+    : 'border-neutral-300 bg-white text-neutral-600'
 }
 
 /** UC-06, BR-05, BR-06. A BOOKED/LOCKED seat is frozen — the backend never moves it when the % changes. */
@@ -52,10 +52,10 @@ export function SeatAllocationPage() {
   }, [summaryQuery.data])
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Seat Allocation</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Seat Allocation</h1>
 
-      <div className="mt-4 flex gap-4">
+      <div className="mt-4 flex flex-wrap gap-4 rounded-xl border border-neutral-200 bg-white p-4">
         <label className="text-sm font-medium">
           Date
           <input
@@ -65,7 +65,7 @@ export function SeatAllocationPage() {
               setDate(event.target.value)
               setShowId(null)
             }}
-            className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2"
           />
         </label>
         <label className="text-sm font-medium">
@@ -73,7 +73,7 @@ export function SeatAllocationPage() {
           <select
             value={showId ?? ''}
             onChange={(event) => setShowId(event.target.value || null)}
-            className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2"
           >
             <option value="">Select a show…</option>
             {showsQuery.data?.map((show) => (
@@ -90,7 +90,7 @@ export function SeatAllocationPage() {
       {summaryQuery.data && (
         <>
           <div className="mt-6 flex items-center gap-6">
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            <p className="text-sm text-neutral-600">
               {summaryQuery.data.onlineCount} online / {summaryQuery.data.physicalCount} physical of {summaryQuery.data.totalSeats}
             </p>
             <label className="flex items-center gap-2 text-sm font-medium">
@@ -101,14 +101,14 @@ export function SeatAllocationPage() {
                 max={100}
                 value={percent ?? summaryQuery.data.onlineAllocationPercent}
                 onChange={(event) => setPercent(Number(event.target.value))}
-                className="w-20 rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
+                className="w-20 rounded-lg border border-neutral-300 px-2 py-1"
               />
             </label>
             <button
               type="button"
               disabled={percent === null || updateMutation.isPending}
               onClick={() => updateMutation.mutate(percent!)}
-              className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+              className="rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
             >
               {updateMutation.isPending ? 'Saving…' : 'Apply'}
             </button>
@@ -116,16 +116,16 @@ export function SeatAllocationPage() {
 
           <div className="mt-4 flex gap-4 text-xs text-neutral-500">
             <span className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded border border-emerald-400 bg-emerald-50 dark:bg-emerald-950" /> Online
+              <span className="inline-block h-3 w-3 rounded border border-emerald-400 bg-emerald-50" /> Online
             </span>
             <span className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded border border-neutral-300 bg-white dark:bg-neutral-950" /> Physical
+              <span className="inline-block h-3 w-3 rounded border border-neutral-300 bg-white" /> Physical
             </span>
             <span className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded border border-amber-400 bg-amber-100 dark:bg-amber-900" /> Locked
+              <span className="inline-block h-3 w-3 rounded border border-amber-400 bg-amber-100" /> Locked
             </span>
             <span className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded border border-neutral-400 bg-neutral-400 dark:bg-neutral-600" /> Booked
+              <span className="inline-block h-3 w-3 rounded border border-neutral-400 bg-neutral-400" /> Booked
             </span>
           </div>
 

@@ -6,10 +6,10 @@ import { formatCurrency, formatTime, todayIso } from '../../lib/format'
 
 function seatClasses(seat: PublicSeatResponse, isSelected: boolean): string {
   if (seat.status !== 'AVAILABLE') {
-    return 'cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-600'
+    return 'cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400'
   }
-  if (isSelected) return 'border-emerald-600 bg-emerald-600 text-white'
-  return 'border-neutral-300 bg-white hover:border-emerald-500 dark:border-neutral-700 dark:bg-neutral-950'
+  if (isSelected) return 'border-brand bg-brand text-white'
+  return 'border-neutral-300 bg-white hover:border-brand'
 }
 
 /** UC-10, BR-07, BR-17. A counter sale settles on the spot — CONFIRMED immediately, no payment step. */
@@ -95,8 +95,8 @@ export function CounterSalesPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Counter Sales</h1>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Counter Sales</h1>
 
       <label className="mt-6 block text-sm font-medium">
         Date
@@ -107,7 +107,7 @@ export function CounterSalesPage() {
             setDate(event.target.value)
             setShowId(null)
           }}
-          className="mt-1 block rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="mt-1 block rounded-lg border border-neutral-300 px-3 py-2"
         />
       </label>
 
@@ -122,10 +122,10 @@ export function CounterSalesPage() {
             key={show.id}
             type="button"
             onClick={() => selectShow(show.id)}
-            className={`rounded-md border px-3 py-2 text-left text-sm ${
+            className={`rounded-lg border px-3 py-2 text-left text-sm ${
               show.id === showId
-                ? 'border-emerald-600 bg-emerald-600 text-white'
-                : 'border-neutral-300 hover:border-emerald-500 dark:border-neutral-700'
+                ? 'border-brand bg-brand text-white'
+                : 'border-neutral-300 bg-white hover:border-brand'
             }`}
           >
             <p className="font-medium">{show.movieTitle}</p>
@@ -135,8 +135,8 @@ export function CounterSalesPage() {
       </div>
 
       {showId && (
-        <form onSubmit={handleSubmit} className="mt-8 grid gap-8 md:grid-cols-[2fr_1fr]">
-          <div>
+        <form onSubmit={handleSubmit} className="mt-8 grid gap-6 md:grid-cols-[2fr_1fr]">
+          <div className="min-w-0 rounded-xl border border-neutral-200 bg-white p-4">
             <div className="flex gap-6">
               <label className="text-sm font-medium">
                 Adults
@@ -146,7 +146,7 @@ export function CounterSalesPage() {
                   max={10}
                   value={adultCount}
                   onChange={(event) => setAdultCount(Math.max(0, Number(event.target.value)))}
-                  className="mt-1 block w-20 rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
+                  className="mt-1 block w-20 rounded-lg border border-neutral-300 px-2 py-1"
                 />
               </label>
               <label className="text-sm font-medium">
@@ -157,7 +157,7 @@ export function CounterSalesPage() {
                   max={10}
                   value={childCount}
                   onChange={(event) => setChildCount(Math.max(0, Number(event.target.value)))}
-                  className="mt-1 block w-20 rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
+                  className="mt-1 block w-20 rounded-lg border border-neutral-300 px-2 py-1"
                 />
               </label>
             </div>
@@ -194,13 +194,13 @@ export function CounterSalesPage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 self-start rounded-xl border border-neutral-200 bg-white p-4">
             <label className="text-sm font-medium">
               Payment method
               <select
                 value={paymentMethod}
                 onChange={(event) => setPaymentMethod(event.target.value as PhysicalPaymentMethod)}
-                className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
               >
                 <option value="CASH">Cash</option>
                 <option value="CARD">Card</option>
@@ -212,7 +212,7 @@ export function CounterSalesPage() {
               <input
                 value={customerName}
                 onChange={(event) => setCustomerName(event.target.value)}
-                className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
               />
             </label>
             <label className="text-sm font-medium">
@@ -220,12 +220,12 @@ export function CounterSalesPage() {
               <input
                 value={customerPhone}
                 onChange={(event) => setCustomerPhone(event.target.value)}
-                className="mt-1 block w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2"
               />
             </label>
 
             {selectedShow && (
-              <div className="mt-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+              <div className="mt-2 rounded-xl border border-neutral-200 bg-white p-4">
                 <p className="flex justify-between text-sm">
                   <span>Total</span>
                   <span className="font-semibold">
@@ -238,7 +238,7 @@ export function CounterSalesPage() {
             {formError && <p className="text-sm text-red-600">{formError}</p>}
             {saleMutation.isError && <p className="text-sm text-red-600">Could not complete the sale. Please try again.</p>}
             {saleMutation.isSuccess && (
-              <p className="text-sm text-emerald-600">
+              <p className="text-sm text-brand">
                 Sold — {saleMutation.data.bookingReference} ({saleMutation.data.seats.map((s) => s.seatNumber).join(', ')})
               </p>
             )}
@@ -246,7 +246,7 @@ export function CounterSalesPage() {
             <button
               type="submit"
               disabled={saleMutation.isPending}
-              className="mt-2 rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+              className="mt-2 rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
             >
               {saleMutation.isPending ? 'Selling…' : 'Sell Ticket'}
             </button>

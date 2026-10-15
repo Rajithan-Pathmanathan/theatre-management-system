@@ -15,9 +15,9 @@ export function BookingStatusPage() {
   }
 
   return (
-    <main className="mx-auto max-w-xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Track Booking Status</h1>
-      <p className="mt-1 text-neutral-600 dark:text-neutral-400">
+    <main className="mx-auto max-w-xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold">Track Booking Status</h1>
+      <p className="mt-1 text-neutral-600">
         Enter the reference you received when you booked (e.g. VJY-20261201-ABC123).
       </p>
 
@@ -26,12 +26,12 @@ export function BookingStatusPage() {
           value={reference}
           onChange={(event) => setReference(event.target.value)}
           placeholder="VJY-20261201-ABC123"
-          className="flex-1 rounded-md border border-neutral-300 px-3 py-2 font-mono dark:border-neutral-700 dark:bg-neutral-900"
+          className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 font-mono"
         />
         <button
           type="submit"
           disabled={lookup.isPending}
-          className="rounded-md bg-emerald-600 px-4 py-2 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+          className="rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
         >
           {lookup.isPending ? 'Looking up…' : 'Find'}
         </button>
@@ -40,12 +40,12 @@ export function BookingStatusPage() {
       {lookup.isError && <p className="mt-4 text-red-600">No booking found for that reference.</p>}
 
       {lookup.data && (
-        <div className="mt-6 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+        <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-4">
           <p className="flex justify-between">
             <span className="text-neutral-500">Status</span>
             <span className="font-semibold">{lookup.data.status.replace('_', ' ')}</span>
           </p>
-          <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+          <p className="mt-2 text-neutral-600">
             {lookup.data.movieTitle} · {formatDate(lookup.data.showDate)} · {formatTime(lookup.data.startTime)}
           </p>
           <p className="mt-2">Seats: {lookup.data.seats.map((seat) => seat.seatNumber).join(', ')}</p>
@@ -58,13 +58,13 @@ export function BookingStatusPage() {
             <img
               src={qrCodeUrl(lookup.data.id)}
               alt="Booking QR code"
-              className="mx-auto mt-4 h-48 w-48 rounded-lg border border-neutral-200 dark:border-neutral-800"
+              className="mx-auto mt-4 h-48 w-48 rounded-lg border border-neutral-200"
             />
           )}
           {lookup.data.status === 'PENDING_PAYMENT' && (
             <Link
               to={`/bookings/${lookup.data.id}/confirm`}
-              className="mt-4 inline-block text-sm text-emerald-600 hover:underline"
+              className="mt-4 inline-block text-sm text-brand hover:underline"
             >
               Complete payment →
             </Link>
