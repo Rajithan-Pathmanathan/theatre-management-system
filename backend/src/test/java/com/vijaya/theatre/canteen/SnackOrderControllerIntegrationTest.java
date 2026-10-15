@@ -164,7 +164,8 @@ class SnackOrderControllerIntegrationTest extends AbstractIntegrationTest {
         int orderNumber = objectMapper.readTree(createResponse).get("orderNumber").asInt();
         String orderDate = objectMapper.readTree(createResponse).get("orderDate").asString();
 
-        mockMvc.perform(get("/api/snack-orders/lookup").param("date", orderDate).param("orderNumber", String.valueOf(orderNumber)))
+        mockMvc.perform(get("/api/snack-orders/lookup").param("date", orderDate).param("orderNumber", String.valueOf(orderNumber))
+                        .param("phone", "+94770009999"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(id)));
 
@@ -173,6 +174,32 @@ class SnackOrderControllerIntegrationTest extends AbstractIntegrationTest {
                 .andReturn().getResponse().getContentAsByteArray();
         assertThat(png.length).isGreaterThan(0);
         assertThat(png[0]).isEqualTo((byte) 0x89); // PNG magic byte
+    }
+
+    @Test
+    void lookupByOrderNumber_withAWrongOrMissingPhone_isA404SoOrdersCantBeEnumerated() throws Exception {
+        String adminToken = loginAsNewAdmin();
+        UUID showId = createShow(adminToken, true);
+        String itemId = createSnackItem(adminToken, "Samosa", "200.00");
+
+        String body = """
+                {"showId":"%s","customerName":"Private Customer","customerPhone":"+94770008888",
+                 "pickupTiming":"BEFORE_MOVIE","items":[{"snackItemId":"%s","quantity":1}]}
+                """.formatted(showId, itemId);
+        String createResponse = mockMvc.perform(post("/api/snack-orders").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String orderNumber = objectMapper.readTree(createResponse).get("orderNumber").asString();
+        String orderDate = objectMapper.readTree(createResponse).get("orderDate").asString();
+
+        mockMvc.perform(get("/api/snack-orders/lookup").param("date", orderDate).param("orderNumber", orderNumber))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/snack-orders/lookup").param("date", orderDate).param("orderNumber", orderNumber)
+                        .param("phone", "+94770000000"))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/snack-orders/lookup").param("date", orderDate).param("orderNumber", orderNumber)
+                        .param("phone", "+94770008888"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerName", is("Private Customer")));
     }
 
     private String createSnackItem(String adminToken, String name, String price) throws Exception {
